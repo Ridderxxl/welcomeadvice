@@ -12,7 +12,7 @@ template = "ai-review-triggers.html"
 # The Markdown below the front matter is the "About this demo" text on the dashboard.
 
 [extra]
-product_name = "GRC Workspace"   # placeholder name of the fictional governance tool
+product_name = "AI Review Demo"   # descriptive label for this fictional demo
 tenant = "Banco Salamanca"
 tenant_initials = "BS"
 user_initials = "CO"

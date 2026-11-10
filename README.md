@@ -27,8 +27,8 @@ Learning materials are not legal advice or endorsed by IAPP.
 
 ## AI review triggers — Brussels demo
 
-After building, open `/demos/ai-review-triggers/`. The companion supplied HTML
-is preserved unchanged at `/ai-review-triggers-preview.html`.
+After building, open `/demos/ai-review-triggers/`. The companion HTML is at
+`/ai-review-triggers-preview.html`. Both use the neutral label **AI Review Demo**.
 
 - Demo introduction and banner: `content/demos/ai-review-triggers/index.md`.
 - AI systems and vendors: `inventory.toml` in the same directory.
@@ -38,8 +38,8 @@ is preserved unchanged at `/ai-review-triggers-preview.html`.
 - Page structure: `templates/ai-review-triggers.html` and its template directory.
 
 Make edits in these source files, rebuild, run the tests, and submit a PR.
-The templates are adapted to Zola 0.23.6. The standalone HTML is an archived
-supplied snapshot, not the editable source of the generated demo; it does not
+The templates are adapted to Zola 0.23.6. The standalone HTML is a supplied
+snapshot with its product label renamed, not the editable source of the generated demo; it does not
 automatically update when the source changes.
 
 The demo uses pre-authored scenario flags, not an automatic dependency-analysis
@@ -47,10 +47,10 @@ engine. Banco Salamanca and its records are fictional. Regulation-change announc
 are simulated, not current legal updates. Case classifications illustrate the
 supplied scenario and are not legal advice or validated compliance assessments.
 The live demo banner repeats the fictional/not-legal-advice notice; the
-archived HTML is unchanged.
+standalone HTML otherwise retains the supplied snapshot content.
 
-The homepage and existing crosswalk are unchanged. The demo is deliberately
-unlinked from the homepage; Zola may report it as an orphan page. This is not a
+The homepage links to the demo through navigation and a live-demo card. The
+existing crosswalk is preserved. Zola may report the demo as an orphan page. This is not a
 build error. No hosting or automated deployment is configured in this repo.
 
 ## Publication boundary
