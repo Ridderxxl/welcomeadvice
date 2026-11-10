@@ -1,0 +1,131 @@
+# Inventory: AI systems and vendors. Derived from the Banco Salamanca case.
+#
+# Scenario keys (scenario ids are defined in scenarios.toml):
+#   flags.<scenario>      = "reason"   flagged for review while that scenario is simulated
+#   status_in.<scenario>  = "label"    status shown instead while that scenario is simulated
+#   inputs_add / model_add.<scenario> = "text"   extra line that only exists in that scenario
+# Dates are day offsets from the day the page is opened (negative = in the past).
+
+[[systems]]
+id = "AIS-001"
+name = "Cacsuma-Detect"
+kind = "AI system"
+summary = "Screens all transactions for anomalies and checks names against sanctions and PEP lists. Every alert lands with the AML team."
+provider = "VEN-001"
+role = "Deployer"
+lifecycle = "In use"
+business_value = "High"
+business_owner = "Compliance · AML team"
+risk_owner = "Chief Compliance Officer"
+users = "AML analysts"
+risk_class = "Minimal risk"
+risk_basis = "Used only to detect financial fraud, which the EU AI Act excepts in Annex III point 5(b). Not customer-facing, so no transparency duties."
+status = "Approved"
+assessment = "ASM-001"
+last_assessed = -118
+next_review = 247
+model = "Cacsuma model 4.2 (proprietary)"
+cadence = "Daily screening against the current rules; a full rescreen every month and every quarter looks for new patterns that can become rules."
+inputs = [
+  "SEPA credit transfers from core banking (camt.053 statements)",
+  "Customer names for sanctions and PEP screening: legal name, or first and last name with prefixes",
+]
+outputs = "Alerts with a likelihood score in the Cacsuma-Detect workbench"
+oversight = "From 98 % alerts are escalated automatically; below 85 % they are closed as false positives; 85–98 % are reviewed by an analyst. A second officer confirms fraud before it is reported to the regulator."
+retention = "10 years after the customer relationship ends, or longer where required"
+policies = ["POL-001", "POL-002", "POL-003"]
+flags.annex-iii = "Classification relies on the Annex III 5(b) exception"
+flags.wero = "New input: Wero instant payments"
+flags.segments = "New customer data may count as profiling"
+flags.model-v5 = "Provider announced model 5.0"
+flags.caio = "Risk owner moves to the Chief AI Officer"
+status_in.annex-iii = "Re-assessment required"
+status_in.wero = "Data input review"
+status_in.segments = "Re-assessment required"
+status_in.model-v5 = "Model change pending"
+status_in.caio = "Owner change"
+inputs_add.wero = "Wero instant payments (new source)"
+inputs_add.segments = "Customer segment, income band and account history (new, stored for alert review)"
+model_add.model-v5 = "Model 5.0 announced: trained on 10× more transaction data"
+
+[[systems]]
+id = "AIS-002"
+name = "Microsoft Copilot"
+kind = "GPAI-based assistant"
+summary = "Helps employees in every branch find documents on SharePoint and on their own computer."
+provider = "VEN-002"
+role = "Deployer"
+lifecycle = "In use"
+business_value = "Moderate"
+business_owner = "Branch operations"
+risk_owner = "Chief Compliance Officer"
+users = "Employees in every branch"
+risk_class = "Minimal risk"
+risk_basis = "Internal document search. Duties for the underlying general-purpose AI model sit with Microsoft as provider."
+status = "Approved"
+assessment = "ASM-002"
+last_assessed = -160
+next_review = 205
+model = "Microsoft 365 Copilot, standard E5 licence"
+cadence = "Updates are managed by Microsoft"
+inputs = ["Documents on SharePoint", "Files on the employee's own computer"]
+outputs = "Answers and document suggestions for the employee"
+oversight = "Employees decide what to do with the answers. The E5 set-up does not let them build their own cloud flows or agents."
+retention = "Follows the Microsoft 365 retention settings"
+policies = ["POL-001"]
+flags.caio = "Risk owner moves to the Chief AI Officer"
+status_in.caio = "Owner change"
+
+[[systems]]
+id = "AIS-003"
+name = "AI agents in business processes"
+kind = "Intake request"
+summary = "Several departments asked to use AI agents, such as Microsoft Copilot agents or Claude Cowork, in day-to-day operations."
+provider = ""
+role = "To be determined"
+lifecycle = "Intake"
+business_value = "Not assessed"
+business_owner = "Several departments"
+risk_owner = "Not assigned"
+users = "To be determined"
+risk_class = "Not classified"
+risk_basis = "Classification starts once the IT security evaluation of AI agents is done."
+status = "Draft"
+assessment = "ASM-003"
+last_assessed = -40
+next_review = 200
+model = "Candidates: Microsoft Copilot agents, Claude Cowork"
+cadence = "Not defined"
+inputs = ["Not yet defined"]
+outputs = "Not yet defined"
+oversight = "Not yet defined. Blocked until IT has evaluated the security risks of AI agents in business processes."
+retention = "Not yet defined"
+policies = ["POL-001"]
+flags.caio = "Intake decision moves to the Chief AI Officer"
+
+
+[[vendors]]
+id = "VEN-001"
+name = "Cacsuma"
+category = "AI system provider"
+services = "Screening software Cacsuma-Detect, including the AI module for anomalous transactions"
+relationship_owner = "Chief Compliance Officer"
+contract = "Reviewed for liability only. No AI-specific clauses on model changes, training data or transparency."
+status = "In review"
+assessment = "ASM-004"
+since = -1460
+systems = ["AIS-001"]
+flags.model-v5 = "Release notice: model 5.0"
+status_in.model-v5 = "Change notice received"
+
+[[vendors]]
+id = "VEN-002"
+name = "Microsoft"
+category = "Software provider"
+services = "Microsoft 365 E5 licence, including Copilot"
+relationship_owner = "IT"
+contract = "Standard enterprise agreement"
+status = "Approved"
+assessment = ""
+since = -2190
+systems = ["AIS-002"]

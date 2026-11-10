@@ -1,0 +1,123 @@
+<section class="ar-view" data-view="triggers" data-title="Review triggers" hidden>
+  <header class="ar-ph">
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><span>Governance</span></p>
+      <div class="ar-ph__bar"><h1 tabindex="-1">Review triggers</h1></div>
+      <p class="ar-ph__lead">Defined in section 5 of the AI policy. Each trigger represents one kind of change. Selecting a simulated event opens its change record and highlights pre-authored impacts; this demo does not monitor real events or discover dependencies.</p>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+    <section class="ar-card ar-card--flush" data-tour="triggers-table">
+      <div class="ar-tablewrap"><table class="ar-table" aria-label="Review triggers">
+        <thead><tr><th scope="col">Trigger</th><th scope="col">Fires when</th><th scope="col">Watches</th><th scope="col">Review scope</th><th scope="col">Owner</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+        {%- for t in gov.triggers %}
+          <tr data-flags="{{ t.scenarios | join(sep=' ') }}">
+            <td class="ar-cell-main">{{ t.name }}</td>
+            <td>{{ t.fires }}</td>
+            <td>{{ t.watches }}</td>
+            <td>{{ t.scope }}</td>
+            <td>{{<ar.owner name={t.owner} roles={tk.roles} />}}</td>
+            <td class="ar-nowrap"><span class="ar-swap" data-hide-in="{{ t.scenarios | join(sep=' ') }}">{{<ar.chip label="Monitoring" />}}</span>{% for sid in t.scenarios %}{% set s = ([item for item in sc.scenarios if item.id == sid] | first) %}<span class="ar-swap" data-only="{{ sid }}" hidden><a class="ar-chip ar-chip--warn" href="#/triggers/{{ s.change }}">Fired today · {{ s.change }}</a></span>{% endfor %}</td>
+          </tr>
+        {%- endfor %}
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ar-card ar-card--flush">
+      <div class="ar-card__head"><h2 class="ar-card__title" id="changes-title">Change records</h2></div>
+      <div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">Change</th><th scope="col">Type</th><th scope="col">Detected</th><th scope="col">Source</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+        {%- for s in sc.scenarios %}
+          <tr data-only="{{ s.id }}" hidden>
+            <td class="ar-cell-main"><a class="ar-rowlink" href="#/triggers/{{ s.change }}"><span class="ar-id">{{ s.change }}</span>{{ s.name }}</a></td>
+            <td>{{ s.type }}</td>
+            <td>Today</td>
+            <td>{{ s.source }}</td>
+            <td>{{<ar.chip label="Review in progress" />}}</td>
+          </tr>
+        {%- endfor %}
+          <tr data-empty hidden><td colspan="5" class="ar-empty">No changes detected yet. Use <button type="button" class="ar-linkbtn ar-linkbtn--light" data-open-scenarios>Simulate a change</button> to fire a trigger.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+  </div></div>
+</section>
+
+{%- for s in sc.scenarios %}
+{%- set trg = ([item for item in gov.triggers if item.id == s.trigger] | first) %}
+<section class="ar-view" data-view="triggers/{{ s.change }}" data-title="{{ s.change }} · {{ s.name }}" data-scenario-view="{{ s.id }}" hidden>
+  <header class="ar-ph ar-ph--record">
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><a href="#/triggers">Review triggers</a><span aria-hidden="true">/</span><span>{{ s.change }}</span></p>
+      <div class="ar-ph__bar">
+        <div class="ar-ph__title"><span class="ar-ph__icon ar-ph__icon--warn" aria-hidden="true">{{<ar.icon name={s.type} />}}</span><h1 tabindex="-1">{{ s.name }}</h1>{{<ar.chip label="Review in progress" />}}</div>
+      </div>
+      <dl class="ar-meta">
+        <div><dt>Change</dt><dd>{{ s.change }} · {{ s.type }}</dd></div>
+        <div><dt>Trigger</dt><dd>{{ trg.name }}</dd></div>
+        <div><dt>Source</dt><dd>{{ s.source }}</dd></div>
+        <div><dt>Detected</dt><dd>Today</dd></div>
+        {%- if s.effective %}
+        <div><dt>Takes effect</dt><dd><time data-effective></time> · <span data-days-to-effective></span></dd></div>
+        {%- endif %}
+        <div><dt>Review owner</dt><dd>{{ trg.owner }}</dd></div>
+      </dl>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+
+    <ol class="ar-process">
+      <li class="ar-process__item ar-process__item--done"><span class="ar-process__dot" aria-hidden="true">{{<ar.icon name="check" cls="ar-ico ar-ico--xs" />}}</span><span class="ar-process__label">Detected</span><span class="ar-process__meta">Today</span></li>
+      <li class="ar-process__item ar-process__item--done"><span class="ar-process__dot" aria-hidden="true">{{<ar.icon name="check" cls="ar-ico ar-ico--xs" />}}</span><span class="ar-process__label">Impact analysis</span><span class="ar-process__meta">Simulated mapping</span></li>
+      <li class="ar-process__item ar-process__item--done"><span class="ar-process__dot" aria-hidden="true">{{<ar.icon name="check" cls="ar-ico ar-ico--xs" />}}</span><span class="ar-process__label">Tasks assigned</span><span class="ar-process__meta"><span data-task-count="{{ s.id }}">0</span> tasks</span></li>
+      <li class="ar-process__item ar-process__item--current"><span class="ar-process__dot" aria-hidden="true">4</span><span class="ar-process__label">Review &amp; measures</span><span class="ar-process__meta">In progress</span></li>
+      <li class="ar-process__item"><span class="ar-process__dot" aria-hidden="true">5</span><span class="ar-process__label">Re-approval</span><span class="ar-process__meta">Pending</span></li>
+      <li class="ar-process__item"><span class="ar-process__dot" aria-hidden="true">6</span><span class="ar-process__label">Closed</span><span class="ar-process__meta">Pending</span></li>
+    </ol>
+
+    <div class="ar-cols">
+      <section class="ar-card">
+        <h2 class="ar-card__title" id="{{ s.change }}-what">What changed</h2>
+        <p class="ar-text">{{ s.detail }}</p>
+        <p class="ar-card__foot">Fired trigger <a href="#/triggers">{{ trg.name }}</a>: {{ trg.fires | lower }}</p>
+      </section>
+      <section class="ar-card">
+        <h2 class="ar-card__title" id="{{ s.change }}-next">Expected outcome</h2>
+        <p class="ar-text">{{ s.expected }}</p>
+        <p class="ar-card__foot">{{ s.priority_note }}</p>
+      </section>
+
+      <section class="ar-card ar-card--flush ar-cols__wide" data-tour="impact-{{ s.id }}">
+        <div class="ar-card__head">
+          <h2 class="ar-card__title" id="{{ s.change }}-impact">Impact analysis<span class="ar-count ar-count--warn" data-impact-count="{{ s.id }}">0</span></h2>
+          <span class="ar-card__hint">Illustrative impact mapping, pre-authored for each scenario; not an automated dependency-analysis engine</span>
+        </div>
+        <div class="ar-tablewrap"><table class="ar-table">
+          <thead><tr><th scope="col">Needs review</th><th scope="col">Type</th><th scope="col">Why</th></tr></thead>
+          <tbody data-impact-rows="{{ s.id }}"></tbody>
+        </table></div>
+        <div class="ar-clearlist" data-tour="clear-{{ s.id }}">
+          <h3 class="ar-clearlist__title">{{<ar.icon name="check" cls="ar-ico ar-ico--xs" />}}No review needed</h3>
+          <p class="ar-clearlist__items" data-clear-list="{{ s.id }}"></p>
+        </div>
+      </section>
+
+      <section class="ar-card ar-card--flush ar-cols__wide" data-tour="ctasks-{{ s.id }}">
+        <div class="ar-card__head"><h2 class="ar-card__title" id="{{ s.change }}-tasks">Tasks created<span class="ar-count ar-count--muted" data-task-count="{{ s.id }}">0</span></h2></div>
+        <div class="ar-tablewrap"><table class="ar-table">
+          <thead><tr><th scope="col">Task</th><th scope="col">Linked to</th><th scope="col">Owner</th><th scope="col">Due</th><th scope="col">Priority</th><th scope="col">Status</th></tr></thead>
+          <tbody>
+          {%- for t in tk.tasks | sort(attribute="due") %}{% if t.only and s.id in t.only %}
+            {{<ar.task_row t={t} inv={inv} gov={gov} roles={tk.roles} />}}
+          {%- endif %}{% endfor %}
+          </tbody>
+        </table></div>
+      </section>
+    </div>
+
+  </div></div>
+</section>
+{%- endfor %}

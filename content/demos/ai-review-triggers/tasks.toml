@@ -1,0 +1,329 @@
+# Tasks. Tasks with `only` exist only while that scenario is simulated (they are the
+# tasks the review trigger creates). due = day offset from today. links = related records.
+
+# Short codes for the avatar circles next to owners
+[roles]
+"Chief Compliance Officer" = "CC"
+"Chief AI Officer" = "AI"
+"AML team lead" = "AL"
+"Data Protection Officer" = "DP"
+"IT security" = "IS"
+"IT operations" = "IT"
+"IT" = "IT"
+"Purchasing" = "PU"
+"Branch operations" = "BO"
+"Compliance" = "CO"
+
+[[tasks]]
+id = "TSK-101"
+title = "Disable bulk approve for alerts scored 85–98 %"
+description = "The compliance manual expects these alerts to be reviewed one by one, but bulk approve works on every hit. Ask Cacsuma to restrict the function, or block it by role."
+owner = "AML team lead"
+due = 21
+priority = "High"
+status = "Open"
+links = ["AIS-001", "RSK-001", "MSR-005", "POL-002"]
+
+[[tasks]]
+id = "TSK-102"
+title = "Get Cacsuma to explain name matching for transliterated names"
+description = "The team does not know how the Levenshtein matching treats spelling variants and names transliterated from non-Roman scripts. Request a walkthrough and build a test set."
+owner = "Chief Compliance Officer"
+due = 35
+priority = "High"
+status = "Open"
+links = ["AIS-001", "RSK-002", "MSR-006", "VEN-001"]
+
+[[tasks]]
+id = "TSK-103"
+title = "Calibrate the 85 % and 98 % thresholds to the bank's risk appetite"
+description = "The thresholds are Cacsuma's defaults. Back-test them against last year's confirmed cases and document the chosen values."
+owner = "AML team lead"
+due = 60
+priority = "Medium"
+status = "Open"
+links = ["POL-002", "RSK-003", "AIS-001"]
+
+[[tasks]]
+id = "TSK-104"
+title = "Add AI clauses to the Cacsuma contract"
+description = "Notice period for model changes, use of our alert outcomes for training, and support for explaining results."
+owner = "Purchasing"
+due = 30
+priority = "Medium"
+status = "In progress"
+links = ["VEN-001", "ASM-004", "RSK-006", "MSR-008"]
+
+[[tasks]]
+id = "TSK-105"
+title = "Evaluate the security risks of AI agents in business processes"
+description = "Needed before the intake for AI agents can continue. On IT's list for next year."
+owner = "IT security"
+due = 200
+priority = "Medium"
+status = "Not started"
+links = ["AIS-003", "ASM-003", "RSK-005"]
+
+[[tasks]]
+id = "TSK-106"
+title = "List the camt.053 versions in use per system"
+description = "New camt versions reach the systems with a delay. Record which version each system uses and when it will be updated."
+owner = "IT operations"
+due = 45
+priority = "Low"
+status = "Open"
+links = ["AIS-001", "RSK-004", "POL-001"]
+
+[[tasks]]
+id = "TSK-107"
+title = "Review the allow-list entries"
+description = "Quarterly check that every allow-listed entity is still justified."
+owner = "AML team lead"
+due = 12
+priority = "Low"
+status = "Open"
+links = ["MSR-003", "POL-002"]
+
+[[tasks]]
+id = "TSK-108"
+title = "Annual review of the AI policy"
+description = "Scheduled full review of the AI policy and its review triggers."
+owner = "Chief Compliance Officer"
+due = 239
+priority = "Medium"
+status = "Scheduled"
+links = ["POL-001"]
+
+[[tasks]]
+id = "TSK-109"
+title = "Sign off the Q3 full rescreen"
+description = "Quarterly rescreen of all transactions; two new patterns were turned into rules."
+owner = "AML team lead"
+due = -20
+priority = "Low"
+status = "Done"
+links = ["AIS-001", "MSR-009"]
+
+[[tasks]]
+id = "TSK-110"
+title = "Approve the classification of Microsoft Copilot"
+description = "Sign-off of the EU AI Act classification for Copilot."
+owner = "Chief Compliance Officer"
+due = -160
+priority = "Medium"
+status = "Done"
+links = ["AIS-002", "ASM-002", "POL-001"]
+
+# ---- Created by the regulation change (CHG-031)
+
+[[tasks]]
+id = "TSK-201"
+title = "Re-assess the Annex III answers for Cacsuma-Detect"
+description = "Answer the two flagged questions again against the amended text. All other answers are carried over from version 2."
+owner = "Chief Compliance Officer"
+due = 60
+priority = "High"
+status = "Open"
+links = ["ASM-001", "AIS-001"]
+origin = "CHG-031"
+only = ["annex-iii"]
+
+[[tasks]]
+id = "TSK-202"
+title = "Update AI policy section 2 if the classification changes"
+description = "Section 2 cites the fraud-detection exception. Update it, and the review schedule, once the re-assessment is approved."
+owner = "Chief Compliance Officer"
+due = 75
+priority = "High"
+status = "Open"
+links = ["POL-001"]
+origin = "CHG-031"
+only = ["annex-iii"]
+
+# ---- Created by the new data source: Wero (CHG-032)
+
+[[tasks]]
+id = "TSK-211"
+title = "Confirm Wero data does not change the EU AI Act classification"
+description = "Check the flagged data question. Expected outcome: no material change, because the purpose and the model stay the same."
+owner = "Chief Compliance Officer"
+due = 14
+priority = "Medium"
+status = "Open"
+links = ["ASM-001", "AIS-001"]
+origin = "CHG-032"
+only = ["wero"]
+
+[[tasks]]
+id = "TSK-212"
+title = "Add Wero to data governance: format, quality checks and retention"
+description = "Wero messages arrive outside the camt.053 flow. Document the format, the quality checks and the retention."
+owner = "IT operations"
+due = 21
+priority = "Medium"
+status = "Open"
+links = ["POL-001", "AIS-001", "RSK-004"]
+origin = "CHG-032"
+only = ["wero"]
+
+[[tasks]]
+id = "TSK-213"
+title = "Validate the alert rules for Wero transactions before go-live"
+description = "Wero was screened with static rules until now. Compare both for one month and include Wero in the monthly rescreen."
+owner = "AML team lead"
+due = 10
+priority = "High"
+status = "Open"
+links = ["AIS-001", "MSR-009", "POL-002"]
+origin = "CHG-032"
+only = ["wero"]
+
+# ---- Created by the new data source: customer segments (CHG-033)
+
+[[tasks]]
+id = "TSK-221"
+title = "Re-assess the profiling question for Cacsuma-Detect"
+description = "Segment, income band and account history could count as profiling, which affects the Annex III exception."
+owner = "Chief Compliance Officer"
+due = 14
+priority = "High"
+status = "Open"
+links = ["ASM-001", "AIS-001"]
+origin = "CHG-033"
+only = ["segments"]
+
+[[tasks]]
+id = "TSK-222"
+title = "Record the purpose limitation for segment data"
+description = "Segment data is used only for manual alert evaluation, never for model scoring or commercial purposes. Record this in the policy and the system record."
+owner = "Data Protection Officer"
+due = 14
+priority = "High"
+status = "Open"
+links = ["POL-001", "AIS-001", "RSK-007"]
+origin = "CHG-033"
+only = ["segments"]
+
+[[tasks]]
+id = "TSK-223"
+title = "Set retention and access for the new customer data"
+description = "Decide how long segment, income band and account history are kept, and who can see them in the workbench."
+owner = "IT operations"
+due = 30
+priority = "Medium"
+status = "Open"
+links = ["MSR-004", "MSR-010", "POL-002"]
+origin = "CHG-033"
+only = ["segments"]
+
+# ---- Created by the model change (CHG-034)
+
+[[tasks]]
+id = "TSK-231"
+title = "Impact session with Cacsuma support and IT"
+description = "Agree what model 5.0 changes in daily operations, and get a test environment for the challenger run."
+owner = "Chief Compliance Officer"
+due = 7
+priority = "High"
+status = "Open"
+links = ["VEN-001", "POL-003", "AIS-001"]
+origin = "CHG-034"
+only = ["model-v5"]
+
+[[tasks]]
+id = "TSK-232"
+title = "Run model 5.0 as a challenger next to 4.2 for at least a month"
+description = "Both models score the same transactions; differences in alerts are reviewed every week."
+owner = "AML team lead"
+due = 45
+priority = "High"
+status = "Open"
+links = ["POL-003", "AIS-001"]
+origin = "CHG-034"
+only = ["model-v5"]
+
+[[tasks]]
+id = "TSK-233"
+title = "Simulate the yearly review with model 5.0"
+description = "Acceptance test: model 5.0 must catch at least all previously confirmed true positives."
+owner = "AML team lead"
+due = 60
+priority = "High"
+status = "Open"
+links = ["POL-003", "AIS-001"]
+origin = "CHG-034"
+only = ["model-v5"]
+
+[[tasks]]
+id = "TSK-234"
+title = "Re-validate the 85 % and 98 % thresholds for model 5.0"
+description = "A new model shifts the score distribution. Check the thresholds on the challenger results."
+owner = "AML team lead"
+due = 60
+priority = "Medium"
+status = "Open"
+links = ["POL-002", "RSK-003", "MSR-001"]
+origin = "CHG-034"
+only = ["model-v5"]
+
+# ---- Created by the organisational change (CHG-035)
+
+[[tasks]]
+id = "TSK-241"
+title = "Hand over ownership of the AI policy to the Chief AI Officer"
+description = "Transfer the AI policy, the compliance manual and the model review procedure, with their open tasks."
+owner = "Chief Compliance Officer"
+due = 14
+priority = "High"
+status = "Open"
+links = ["POL-001", "POL-002", "POL-003"]
+origin = "CHG-035"
+only = ["caio"]
+
+[[tasks]]
+id = "TSK-242"
+title = "Re-confirm or adjust the AI policy"
+description = "The new owner checks each section against the bank's AI strategy and values."
+owner = "Chief AI Officer"
+due = 45
+priority = "Medium"
+status = "Open"
+links = ["POL-001"]
+origin = "CHG-035"
+only = ["caio"]
+
+[[tasks]]
+id = "TSK-243"
+title = "Re-confirm the compliance manual and the model review procedure"
+description = "Both stay in force until the new owner re-confirms or adjusts them."
+owner = "Chief AI Officer"
+due = 45
+priority = "Medium"
+status = "Open"
+links = ["POL-002", "POL-003"]
+origin = "CHG-035"
+only = ["caio"]
+
+[[tasks]]
+id = "TSK-244"
+title = "Make the Chief AI Officer the escalation point for AI risks"
+description = "Update the escalation path in the policy and in the human oversight controls."
+owner = "Chief AI Officer"
+due = 21
+priority = "High"
+status = "Open"
+links = ["POL-001", "MSR-002"]
+origin = "CHG-035"
+only = ["caio"]
+
+[[tasks]]
+id = "TSK-245"
+title = "Review the open control gaps with the new owner"
+description = "Bulk approve and name matching are open risks whose controls depend on people."
+owner = "Chief AI Officer"
+due = 30
+priority = "Medium"
+status = "Open"
+links = ["RSK-001", "RSK-002"]
+origin = "CHG-035"
+only = ["caio"]

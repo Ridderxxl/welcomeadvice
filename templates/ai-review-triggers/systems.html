@@ -1,0 +1,154 @@
+<section class="ar-view" data-view="ai-systems" data-title="AI systems" hidden>
+  <header class="ar-ph">
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><span>Inventory</span></p>
+      <div class="ar-ph__bar"><h1 tabindex="-1">AI systems</h1></div>
+      <p class="ar-ph__lead">Every AI system in use or requested, with its provider, risk class and owner. Each record links to its assessments, risks, tasks and policies.</p>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+    <section class="ar-card ar-card--flush" data-tour="systems-table">
+      <div class="ar-tablewrap"><table class="ar-table" aria-label="AI systems register">
+        <thead><tr><th scope="col">AI system</th><th scope="col">Type</th><th scope="col">Provider</th><th scope="col">Lifecycle</th><th scope="col">EU AI Act risk class</th><th scope="col">Status</th><th scope="col">Risk owner</th><th scope="col">Next review</th></tr></thead>
+        <tbody>
+        {%- for s in inv.systems %}
+          <tr{{<ar.attrs item={s} />}} data-tour="row-{{ s.id }}">
+            <td class="ar-cell-main"><a class="ar-rowlink" href="#/ai-systems/{{ s.id }}"><span class="ar-id">{{ s.id }}</span>{{ s.name }}</a></td>
+            <td>{{ s.kind }}</td>
+            <td>{% if s.provider %}{{<ar.ref id={s.provider} inv={inv} gov={gov} />}}{% else %}<span class="ar-muted">Not chosen</span>{% endif %}</td>
+            <td>{{<ar.chip label={s.lifecycle} />}}</td>
+            <td>{{<ar.chip label={s.risk_class} />}}</td>
+            <td>{{<ar.status label={s.status} item={s} />}}</td>
+            <td>{{<ar.owner name={s.risk_owner} roles={tk.roles} />}}</td>
+            <td class="ar-nowrap">{{<ar.date d={s.next_review} />}}</td>
+          </tr>
+        {%- endfor %}
+        </tbody>
+      </table></div>
+    </section>
+  </div></div>
+</section>
+
+{%- for s in inv.systems %}
+{%- set s_asm = [item for item in gov.assessments if item.subject == s.id] %}
+{%- set s_risks = [item for item in gov.risks if item.system == s.id] %}
+<section class="ar-view" data-view="ai-systems/{{ s.id }}" data-title="{{ s.name }}" data-record="{{ s.id }}" hidden>
+  <header class="ar-ph ar-ph--record" id="{{ s.id }}-head" data-reviewable data-label="{{ s.name }}" data-kind="AI system" data-href="#/ai-systems/{{ s.id }}"{{<ar.attrs item={s} />}}>
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><a href="#/ai-systems">AI systems</a><span aria-hidden="true">/</span><span>{{ s.id }}</span></p>
+      <div class="ar-ph__bar">
+        <div class="ar-ph__title"><span class="ar-ph__icon" aria-hidden="true">{{<ar.icon name="systems" />}}</span><h1 tabindex="-1">{{ s.name }}</h1>{{<ar.status label={s.status} item={s} />}}<span class="ar-tags">{{<ar.flagtags item={s} clear={false} />}}</span></div>
+        <div class="ar-ph__actions" aria-hidden="true"><span class="ar-btn" title="Not part of this demo">Export</span><span class="ar-btn" title="Not part of this demo">Edit</span></div>
+      </div>
+      <dl class="ar-meta" data-tour="meta-{{ s.id }}">
+        <div><dt>Type</dt><dd>{{ s.kind }}</dd></div>
+        <div><dt>Provider</dt><dd>{% if s.provider %}{{<ar.ref id={s.provider} inv={inv} gov={gov} />}}{% else %}Not chosen{% endif %}</dd></div>
+        <div><dt>Our role</dt><dd>{{ s.role }}</dd></div>
+        <div><dt>Risk class</dt><dd>{{ s.risk_class }}</dd></div>
+        <div><dt>Last assessed</dt><dd>{{<ar.date d={s.last_assessed} />}}</dd></div>
+        <div><dt>Next review</dt><dd>{{<ar.date d={s.next_review} />}}</dd></div>
+      </dl>
+      <nav class="ar-rtabs" aria-label="{{ s.name }}: record sections">
+        <a class="ar-rtab" href="#/ai-systems/{{ s.id }}" data-tab-link="overview">Overview</a>
+        <a class="ar-rtab" href="#/ai-systems/{{ s.id }}/assessments" data-tab-link="assessments" data-tour="tab-{{ s.id }}-assessments">Assessments<span class="ar-tab__count" data-count-rows="{{ s.id }}-assessments"></span></a>
+        <a class="ar-rtab" href="#/ai-systems/{{ s.id }}/risks" data-tab-link="risks">Risks<span class="ar-tab__count" data-count-rows="{{ s.id }}-risks"></span></a>
+        <a class="ar-rtab" href="#/ai-systems/{{ s.id }}/tasks" data-tab-link="tasks">Tasks<span class="ar-tab__count" data-count-rows="{{ s.id }}-tasks"></span></a>
+        <a class="ar-rtab" href="#/ai-systems/{{ s.id }}/policies" data-tab-link="policies">Policies<span class="ar-tab__count" data-count-rows="{{ s.id }}-policies"></span></a>
+      </nav>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+
+    <div class="ar-tabpanel" data-tab="overview">
+      <div class="ar-cols">
+        <section class="ar-card">
+          <h2 class="ar-card__title">Purpose &amp; use</h2>
+          <p class="ar-text">{{ s.summary }}</p>
+          <dl class="ar-kv">
+            <dt>Business owner</dt><dd>{{ s.business_owner }}</dd>
+            <dt>Risk owner</dt><dd>{{ s.risk_owner }}</dd>
+            <dt>Users</dt><dd>{{ s.users }}</dd>
+            <dt>Business value</dt><dd>{{ s.business_value }}</dd>
+          </dl>
+        </section>
+        <section class="ar-card">
+          <h2 class="ar-card__title">Data</h2>
+          <dl class="ar-kv">
+            <dt>Inputs</dt><dd><ul class="ar-bullets">{% for i in s.inputs %}<li>{{ i }}</li>{% endfor %}{% if s.inputs_add %}{% for k, v in s.inputs_add %}<li class="ar-new" data-only="{{ k }}" hidden><span class="ar-newtag">New</span>{{ v }}</li>{% endfor %}{% endif %}</ul></dd>
+            <dt>Outputs</dt><dd>{{ s.outputs }}</dd>
+            <dt>Retention</dt><dd>{{ s.retention }}</dd>
+          </dl>
+        </section>
+        <section class="ar-card">
+          <h2 class="ar-card__title">Model</h2>
+          <dl class="ar-kv">
+            <dt>Model</dt><dd>{{ s.model }}{% if s.model_add %}{% for k, v in s.model_add %}<span class="ar-new ar-new--block" data-only="{{ k }}" hidden><span class="ar-newtag">New</span>{{ v }}</span>{% endfor %}{% endif %}</dd>
+            <dt>Updates</dt><dd>{{ s.cadence }}</dd>
+          </dl>
+        </section>
+        <section class="ar-card">
+          <h2 class="ar-card__title">Human oversight</h2>
+          <p class="ar-text">{{ s.oversight }}</p>
+        </section>
+        <section class="ar-card ar-cols__wide">
+          <h2 class="ar-card__title">EU AI Act classification</h2>
+          <dl class="ar-kv">
+            <dt>Risk class</dt><dd>{{<ar.chip label={s.risk_class} />}}</dd>
+            <dt>Basis</dt><dd>{{ s.risk_basis }}</dd>
+            <dt>Assessment</dt><dd>{{<ar.ref id={s.assessment} inv={inv} gov={gov} />}} · {{<ar.status label={s.status} item={s} />}}</dd>
+          </dl>
+        </section>
+      </div>
+    </div>
+
+    <div class="ar-tabpanel" data-tab="assessments" id="{{ s.id }}-assessments" hidden>
+      <section class="ar-card ar-card--flush"><div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">Assessment</th><th scope="col">Template</th><th scope="col">Status</th><th scope="col">Result</th><th scope="col">Updated</th></tr></thead>
+        <tbody>
+        {%- for a in s_asm %}
+          <tr data-tour="asmrow-{{ a.id }}"><td class="ar-cell-main"><a class="ar-rowlink" href="#/assessments/{{ a.id }}"><span class="ar-id">{{ a.id }}</span>{{ a.title }}</a></td><td>{{ a.template }}</td><td>{{<ar.status label={a.status} item={a} />}}</td><td>{{ a.result }}</td><td class="ar-nowrap">{{<ar.date d={a.updated} />}}</td></tr>
+        {%- endfor %}
+          <tr data-empty hidden><td colspan="5" class="ar-empty">No assessments yet.</td></tr>
+        </tbody>
+      </table></div></section>
+    </div>
+
+    <div class="ar-tabpanel" data-tab="risks" id="{{ s.id }}-risks" hidden>
+      <section class="ar-card ar-card--flush"><div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">Risk</th><th scope="col">Before measures</th><th scope="col">After measures</th><th scope="col">Measures</th><th scope="col">Owner</th></tr></thead>
+        <tbody>
+        {%- for r in s_risks %}
+          <tr{{<ar.attrs item={r} />}}><td class="ar-cell-main"><a class="ar-rowlink" href="#/risks/{{ r.id }}"><span class="ar-id">{{ r.id }}</span>{{ r.title }}</a></td><td>{{<ar.level l={r.likelihood} i={r.impact} />}}</td><td>{{<ar.level l={r.residual_likelihood} i={r.residual_impact} />}}</td><td class="ar-refs">{% for x in r.measures %}{{<ar.ref id={x} inv={inv} gov={gov} />}}{% endfor %}</td><td>{{<ar.owner name={r.owner} roles={tk.roles} />}}</td></tr>
+        {%- endfor %}
+          <tr data-empty hidden><td colspan="5" class="ar-empty">No risks recorded.</td></tr>
+        </tbody>
+      </table></div></section>
+    </div>
+
+    <div class="ar-tabpanel" data-tab="tasks" id="{{ s.id }}-tasks" hidden>
+      <section class="ar-card ar-card--flush"><div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">Task</th><th scope="col">Owner</th><th scope="col">Due</th><th scope="col">Priority</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+        {%- for t in tk.tasks | sort(attribute="due") %}{% if s.id in t.links %}
+          {{<ar.task_row t={t} inv={inv} gov={gov} roles={tk.roles} links={false} />}}
+        {%- endif %}{% endfor %}
+          <tr data-empty hidden><td colspan="5" class="ar-empty">No tasks.</td></tr>
+        </tbody>
+      </table></div></section>
+    </div>
+
+    <div class="ar-tabpanel" data-tab="policies" id="{{ s.id }}-policies" hidden>
+      <section class="ar-card ar-card--flush"><div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">Policy</th><th scope="col">Type</th><th scope="col">Owner</th><th scope="col">Version</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+        {%- for p in gov.policies %}{% if p.id in s.policies %}
+          <tr><td class="ar-cell-main"><a class="ar-rowlink" href="#/policies/{{ p.id }}"><span class="ar-id">{{ p.id }}</span>{{ p.title }}</a></td><td>{{ p.kind }}</td><td>{{<ar.owner name={p.owner} roles={tk.roles} />}}</td><td>{{ p.version }}</td><td>{{<ar.status label={p.status} item={p} />}}</td></tr>
+        {%- endif %}{% endfor %}
+          <tr data-empty hidden><td colspan="5" class="ar-empty">No policies.</td></tr>
+        </tbody>
+      </table></div></section>
+    </div>
+
+  </div></div>
+</section>
+{%- endfor %}

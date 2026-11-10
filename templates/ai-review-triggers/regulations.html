@@ -1,0 +1,45 @@
+<section class="ar-view" data-view="regulations" data-title="Regulations" hidden>
+  <header class="ar-ph">
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><span>Governance</span></p>
+      <div class="ar-ph__bar"><h1 tabindex="-1">Regulations</h1></div>
+      <p class="ar-ph__lead">The regulations the workspace monitors, the provisions the bank's assessments and policies rely on, and every regulatory change processed so far.</p>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+    {%- for g in gov.regulations %}
+    <section class="ar-card ar-card--flush"{{<ar.attrs item={g} />}}>
+      <div class="ar-card__head">
+        <h2 class="ar-card__title" id="{{ g.id }}-title">{{ g.name }} <span class="ar-card__hint">{{ g.reference }}</span></h2>
+        <span class="ar-tags">{{<ar.status label={g.status} item={g} />}}{{<ar.flagtags item={g} clear={false} />}}</span>
+      </div>
+      <p class="ar-card__intro">Monitored sources: {{ g.sources | join(sep=" · ") }}</p>
+      <div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">Provision</th><th scope="col">Topic</th><th scope="col">Relied on in</th></tr></thead>
+        <tbody>
+        {%- for p in g.provisions %}
+          <tr{{<ar.attrs item={p} />}}><td class="ar-cell-main ar-nowrap">{{ p.ref }}</td><td>{{ p.topic }}{% if p.flags %}<span class="ar-tags ar-tags--inline">{{<ar.flagtags item={p} clear={false} />}}</span>{% endif %}</td><td class="ar-refs">{% for u in p.used %}{{<ar.ref id={u} inv={inv} gov={gov} />}}{% endfor %}</td></tr>
+        {%- endfor %}
+        </tbody>
+      </table></div>
+    </section>
+    {%- endfor %}
+
+    <section class="ar-card ar-card--flush">
+      <div class="ar-card__head"><h2 class="ar-card__title" id="feed-title">Regulatory change feed</h2></div>
+      <div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">Date</th><th scope="col">Change</th><th scope="col">Status</th><th scope="col">Impact</th></tr></thead>
+        <tbody>
+        {%- for f in gov.feed %}
+          <tr{{<ar.attrs item={f} />}}{% if f.only %} data-flags="{{ f.only | join(sep=' ') }}"{% endif %}>
+            <td class="ar-nowrap">{% if f.date_text %}{{ f.date_text }}{% else %}{{<ar.date d={f.date} />}}{% endif %}</td>
+            <td class="ar-cell-main">{{ f.title }}</td>
+            <td>{{<ar.chip label={f.status} />}}</td>
+            <td>{{ f.impact }}</td>
+          </tr>
+        {%- endfor %}
+        </tbody>
+      </table></div>
+    </section>
+  </div></div>
+</section>

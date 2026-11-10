@@ -1,0 +1,119 @@
+{#- Building blocks for the views. Tera macros only see their own arguments. -#}
+
+{% component ar.icon(name, cls="ar-ico") -%}
+<svg class="{{ cls }}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+{%- if name == "dashboard" -%}<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>
+{%- elif name == "tasks" -%}<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="m8 12.5 3 3 5-6"/>
+{%- elif name == "systems" -%}<rect x="6.5" y="6.5" width="11" height="11" rx="2"/><path d="M9.5 2.5v3M14.5 2.5v3M9.5 18.5v3M14.5 18.5v3M2.5 9.5h3M2.5 14.5h3M18.5 9.5h3M18.5 14.5h3"/>
+{%- elif name == "vendors" -%}<path d="M4 20.5v-14l8-3v17M12 9.5h8v11M2.5 20.5h19M7 9h2M7 13h2M7 17h2M15 13h2M15 17h2"/>
+{%- elif name == "policies" -%}<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5M8.5 13h7M8.5 16.5h5"/>
+{%- elif name == "assessments" -%}<rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 4.5v-1h6v1M8.5 10.5h7M8.5 14h7M8.5 17.5h4"/>
+{%- elif name == "risks" or name == "warn" -%}<path d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4.5M12 17.2v.1"/>
+{%- elif name == "measures" -%}<path d="M12 3 4.5 6v5.5c0 4.5 3.2 8 7.5 9.5 4.3-1.5 7.5-5 7.5-9.5V6z"/><path d="m9 12 2 2 4-4"/>
+{%- elif name == "regulations" -%}<path d="M12 4v16M7 20h10M4.5 7.5h15"/><path d="M7 7.5 4.5 13a2.6 2.6 0 0 0 5 0zM17 7.5 14.5 13a2.6 2.6 0 0 0 5 0z"/>
+{%- elif name == "triggers" -%}<path d="M13 2.5 4.5 13.5h6.5l-1 8 8.5-11h-6.5z"/>
+{%- elif name == "reports" -%}<path d="M4 20.5h16M7 17v-6M12 17V6.5M17 17v-4"/>
+{%- elif name == "settings" -%}<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>
+{%- elif name == "bell" -%}<path d="M6 8.5a6 6 0 1 1 12 0c0 6.5 2.5 8 2.5 8h-17S6 15 6 8.5"/><path d="M10.3 20a2 2 0 0 0 3.4 0"/>
+{%- elif name == "help" -%}<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.6M12 17h.01"/>
+{%- elif name == "search" -%}<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>
+{%- elif name == "chevron" -%}<path d="m7 10 5 5 5-5"/>
+{%- elif name == "menu" -%}<path d="M4 7h16M4 12h16M4 17h16"/>
+{%- elif name == "close" -%}<path d="M6 6l12 12M18 6 6 18"/>
+{%- elif name == "check" -%}<path d="m5 12.5 4.5 4.5L19 7.5"/>
+{%- elif name == "play" -%}<path d="M7.5 5v14l11-7z"/>
+{%- elif name == "restart" -%}<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3L4.5 9"/><path d="M4.5 4.5V9H9"/>
+{%- elif name == "arrow" -%}<path d="M5 12h14M13 6l6 6-6 6"/>
+{%- elif name == "brand" -%}<path d="M12 3.5 5.5 6v5c0 4 2.8 7.2 6.5 8.5 3.7-1.3 6.5-4.5 6.5-8.5V6z"/><path d="m9.2 12 2 2 3.8-4"/>
+{%- elif name == "Regulation change" -%}<path d="M12 4v16M7 20h10M4.5 7.5h15"/><path d="M7 7.5 4.5 13a2.6 2.6 0 0 0 5 0zM17 7.5 14.5 13a2.6 2.6 0 0 0 5 0z"/>
+{%- elif name == "New data source" -%}<ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/>
+{%- elif name == "Model change" -%}<circle cx="6" cy="6" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M7.8 7.3 10.6 16M16.2 7.3 13.4 16M8.2 6h7.6"/>
+{%- elif name == "Organisational change" -%}<circle cx="9" cy="8" r="3"/><path d="M3.5 19.5c.8-3 2.9-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/><circle cx="17" cy="9" r="2.3"/><path d="M15.5 14.6c2.2.2 3.7 1.6 4.5 4.4"/>
+{%- endif -%}
+</svg>
+{%- endcomponent ar.icon %}
+
+{#- Space-separated keys of a map, e.g. the scenarios in flags or status_in -#}
+{% component ar.keys(map) -%}
+{%- for k, v in map %}{{ k }}{% if not loop.last %} {% endif %}{% endfor -%}
+{%- endcomponent ar.keys %}
+
+{#- Scenario attributes for an element: flagged in / only exists in -#}
+{% component ar.attrs(item) -%}
+{%- if item.flags %} data-flags="{{<ar.keys map={item.flags} />}}"{% endif -%}
+{%- if item.only %} data-only="{{ item.only | join(sep=' ') }}" hidden{% endif -%}
+{%- endcomponent ar.attrs %}
+
+{#- Review tags: one per scenario that flags the item, plus a "No review needed" tag the script shows -#}
+{% component ar.flagtags(item, clear=true) -%}
+{%- if item.flags %}{% for k, v in item.flags %}<span class="ar-tag ar-tag--review" data-only="{{ k }}" hidden>{{<ar.icon name="warn" cls="ar-ico ar-ico--xs" />}}{{ v }}</span>{% endfor %}{% endif -%}
+{%- if clear %}<span class="ar-tag ar-tag--clear" data-clear hidden>{{<ar.icon name="check" cls="ar-ico ar-ico--xs" />}}No review needed</span>{% endif -%}
+{%- endcomponent ar.flagtags %}
+
+{% component ar.chip(label) -%}
+{%- set l = label | lower -%}
+{%- if l in ["approved", "in force", "implemented", "processed", "done", "monitored", "minimal risk", "in use", "completed"] -%}{%- set v = "ok" -%}
+{%- elif l in ["open", "in progress", "scheduled", "intake", "planned", "in review", "draft", "monitoring", "review in progress"] -%}{%- set v = "info" -%}
+{%- elif l in ["not started", "not classified", "pending", "not assessed", "to be determined"] -%}{%- set v = "neutral" -%}
+{%- else -%}{%- set v = "warn" -%}
+{%- endif -%}
+<span class="ar-chip ar-chip--{{ v }}">{{ label }}</span>
+{%- endcomponent ar.chip %}
+
+{#- Status chip that switches label while a scenario is simulated (status_in) -#}
+{% component ar.status(label, item) -%}
+{%- if item.status_in -%}
+<span class="ar-swap" data-hide-in="{{<ar.keys map={item.status_in} />}}">{{<ar.chip label={label} />}}</span>
+{%- for k, v in item.status_in %}<span class="ar-swap" data-only="{{ k }}" hidden>{{<ar.chip label={v} />}}</span>{% endfor -%}
+{%- else -%}{{<ar.chip label={label} />}}{%- endif -%}
+{%- endcomponent ar.status %}
+
+{% component ar.prio(p) -%}
+<span class="ar-prio ar-prio--{{ p | lower }}">{{ p }}</span>
+{%- endcomponent ar.prio %}
+
+{#- Dates are day offsets; the script turns them into calendar dates -#}
+{% component ar.date(d) -%}
+<time class="ar-date" data-offset="{{ d }}">{% if d > 0 %}in {{ d }} days{% elif d < 0 %}{{ d * -1 }} days ago{% else %}today{% endif %}</time>
+{%- endcomponent ar.date %}
+
+{% component ar.owner(name, roles) -%}
+<span class="ar-owner"><span class="ar-ava" aria-hidden="true">{{ roles[name] | default(value="··") }}</span>{{ name }}</span>
+{%- endcomponent ar.owner %}
+
+{#- Risk level from likelihood × impact (1–4 each) -#}
+{% component ar.level(l, i) -%}
+{%- set s = l * i -%}
+{%- if s >= 12 -%}{%- set lab = "Very high" -%}{%- set v = "vhigh" -%}
+{%- elif s >= 8 -%}{%- set lab = "High" -%}{%- set v = "high" -%}
+{%- elif s >= 4 -%}{%- set lab = "Medium" -%}{%- set v = "medium" -%}
+{%- else -%}{%- set lab = "Low" -%}{%- set v = "low" -%}{%- endif -%}
+<span class="ar-level ar-level--{{ v }}" title="Likelihood {{ l }} × impact {{ i }} = {{ s }}">{{ lab }}<span class="ar-level__score">{{ s }}</span></span>
+{%- endcomponent ar.level %}
+
+{#- Link to any record by its id -#}
+{% component ar.ref(id, inv, gov) -%}
+{%- if id is starting_with(pat="AIS") -%}{%- set r = ([item for item in inv.systems if item.id == id] | first) -%}<a class="ar-ref" href="#/ai-systems/{{ id }}" title="{{ id }}">{{ r.name }}</a>
+{%- elif id is starting_with(pat="VEN") -%}{%- set r = ([item for item in inv.vendors if item.id == id] | first) -%}<a class="ar-ref" href="#/vendors/{{ id }}" title="{{ id }}">{{ r.name }}</a>
+{%- elif id is starting_with(pat="POL") -%}{%- set r = ([item for item in gov.policies if item.id == id] | first) -%}<a class="ar-ref" href="#/policies/{{ id }}" title="{{ id }}">{{ r.title }}</a>
+{%- elif id is starting_with(pat="ASM") -%}<a class="ar-ref" href="#/assessments/{{ id }}">{{ id }}</a>
+{%- elif id is starting_with(pat="RSK") -%}{%- set r = ([item for item in gov.risks if item.id == id] | first) -%}<a class="ar-ref" href="#/risks/{{ id }}" title="{{ r.title }}">{{ id }}</a>
+{%- elif id is starting_with(pat="MSR") -%}{%- set r = ([item for item in gov.measures if item.id == id] | first) -%}<a class="ar-ref" href="#/measures?at={{ id }}" title="{{ r.title }}">{{ id }}</a>
+{%- elif id is starting_with(pat="TSK") -%}<a class="ar-ref" href="#/tasks/{{ id }}">{{ id }}</a>
+{%- elif id is starting_with(pat="CHG") -%}<a class="ar-ref" href="#/triggers/{{ id }}">{{ id }}</a>
+{%- else -%}{{ id }}{%- endif -%}
+{%- endcomponent ar.ref %}
+
+{#- Shared task row for every task list and subgrid -#}
+{% component ar.task_row(t, inv, gov, roles, links=true) -%}
+<tr data-task-row{% if t.status != "Done" %} data-open{% endif %}{{<ar.attrs item={t} />}}>
+  <td class="ar-cell-main"><a class="ar-rowlink" href="#/tasks/{{ t.id }}"><span class="ar-id">{{ t.id }}</span>{{ t.title }}</a>{% if t.origin %} <span class="ar-origin">From {{ t.origin }}</span>{% endif %}</td>
+  {%- if links %}
+  <td class="ar-refs">{% for l in t.links[:2] %}{{<ar.ref id={l} inv={inv} gov={gov} />}}{% endfor %}{% if t.links | length > 2 %}<span class="ar-more">+{{ t.links | length - 2 }}</span>{% endif %}</td>
+  {%- endif %}
+  <td>{{<ar.owner name={t.owner} roles={roles} />}}</td>
+  <td class="ar-nowrap">{{<ar.date d={t.due} />}}</td>
+  <td>{{<ar.prio p={t.priority} />}}</td>
+  <td>{{<ar.chip label={t.status} />}}</td>
+</tr>
+{%- endcomponent ar.task_row %}

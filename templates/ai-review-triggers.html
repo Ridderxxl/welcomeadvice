@@ -1,0 +1,147 @@
+{#- ==========================================================================
+    AI-governance review triggers: click-through demo for welcomeadvice.nl
+
+    Standalone template (does not extend base.html). It renders a fictional
+    GRC workspace as one page with many views; demo.js switches between them
+    (#/tasks, #/ai-systems/AIS-001, …) and applies the simulated changes.
+
+    Content  content/demos/ai-review-triggers/*.toml and index.md
+    Views    templates/ai-review-triggers/*.html
+    Assets   demo.css and demo.js next to index.md (Zola copies them with the page)
+    ========================================================================== -#}
+{%- set_global x = page.extra -%}
+{%- set data_dir = page.relative_path | replace(from="index.md", to="") -%}
+{%- set_global inv = load_data(path="content/" ~ data_dir ~ "inventory.toml") -%}
+{%- set_global gov = load_data(path="content/" ~ data_dir ~ "governance.toml") -%}
+{%- set_global tk = load_data(path="content/" ~ data_dir ~ "tasks.toml") -%}
+{%- set_global sc = load_data(path="content/" ~ data_dir ~ "scenarios.toml") -%}
+{%- set_global tour = load_data(path="content/" ~ data_dir ~ "tour.toml") -%}
+<!DOCTYPE html>
+<html lang="{{ page.lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>{{ page.title }}{% if config.title %} | {{ config.title }}{% endif %}</title>
+{%- if page.description %}
+<meta name="description" content="{{ page.description }}">
+{%- endif %}
+<link rel="stylesheet" href="{{ page.permalink | safe }}demo.css">
+<script src="{{ page.permalink | safe }}demo.js" defer></script>
+</head>
+<body>
+<div class="ar" id="ar-demo">
+
+  {#- Demo controls: outside the fictional product. Stays on top of the page and of the tour overlay. -#}
+  <section class="ar-demo" id="ar-demobar" aria-label="Demo controls">
+    <div class="ar-demo__inner">
+      <p class="ar-demo__lead"><span class="ar-demo__pill">Demo</span><span class="ar-demo__note">{{ x.demo_note }}</span></p>
+      <div class="ar-demo__status" id="ar-status" hidden>
+        <p class="ar-demo__active"><span class="ar-dot" aria-hidden="true"></span><span><span class="ar-demo__prefix">Simulating: </span><a id="ar-active-link" href="#/triggers"></a></span></p>
+        <button type="button" class="ar-linkbtn" id="ar-reset">Reset</button>
+      </div>
+      <div class="ar-demo__controls">
+        <div class="ar-tourctl" role="group" aria-label="Guided tour">
+          <button type="button" class="ar-switch" id="ar-tour-toggle" role="switch" aria-checked="false"><span class="ar-only-wide">Guided tour</span><span class="ar-only-narrow">Tour</span><span class="ar-switch__track" aria-hidden="true"><span class="ar-switch__knob"></span></span></button>
+          <button type="button" class="ar-demo__btn ar-demo__btn--ghost ar-demo__btn--small" id="ar-tour-restart" aria-label="Restart the tour" title="Restart the tour">{{<ar.icon name="restart" cls="ar-ico ar-ico--sm" />}}<span class="ar-only-wide">Restart</span></button>
+        </div>
+        <button type="button" class="ar-demo__btn" data-open-scenarios aria-haspopup="dialog">{{<ar.icon name="play" cls="ar-ico ar-ico--sm" />}}<span class="ar-only-wide">Simulate a change</span><span class="ar-only-narrow">Simulate</span></button>
+      </div>
+    </div>
+  </section>
+
+  <div class="ar-app">
+    <div class="ar-scrim" id="ar-scrim" hidden></div>
+
+    {#- Module navigation -#}
+    <nav class="ar-side" id="ar-side" aria-label="Modules">
+      <div class="ar-brand"><span class="ar-brand__mark">{{<ar.icon name="brand" />}}</span><span>{{ x.product_name }}</span></div>
+      <p class="ar-nav__group">Overview</p>
+      <a class="ar-nav__item" href="#/dashboard" data-nav="dashboard">{{<ar.icon name="dashboard" />}}Dashboard</a>
+      <a class="ar-nav__item" href="#/tasks" data-nav="tasks">{{<ar.icon name="tasks" />}}Tasks<span class="ar-nav__count" data-count="open-tasks"></span></a>
+      <p class="ar-nav__group">Inventory</p>
+      <a class="ar-nav__item" href="#/ai-systems" data-nav="ai-systems">{{<ar.icon name="systems" />}}AI systems<span class="ar-nav__count">{{ inv.systems | length }}</span></a>
+      <a class="ar-nav__item" href="#/vendors" data-nav="vendors">{{<ar.icon name="vendors" />}}Vendors<span class="ar-nav__count">{{ inv.vendors | length }}</span></a>
+      <p class="ar-nav__group">Governance</p>
+      <a class="ar-nav__item" href="#/policies" data-nav="policies">{{<ar.icon name="policies" />}}Policies<span class="ar-nav__count">{{ gov.policies | length }}</span></a>
+      <a class="ar-nav__item" href="#/assessments" data-nav="assessments">{{<ar.icon name="assessments" />}}Assessments<span class="ar-nav__count">{{ gov.assessments | length }}</span></a>
+      <a class="ar-nav__item" href="#/risks" data-nav="risks">{{<ar.icon name="risks" />}}Risks<span class="ar-nav__count" data-count="risks"></span></a>
+      <a class="ar-nav__item" href="#/measures" data-nav="measures">{{<ar.icon name="measures" />}}Measures<span class="ar-nav__count" data-count="measures"></span></a>
+      <a class="ar-nav__item" href="#/regulations" data-nav="regulations">{{<ar.icon name="regulations" />}}Regulations<span class="ar-nav__count">{{ gov.regulations | length }}</span></a>
+      <a class="ar-nav__item" href="#/triggers" data-nav="triggers">{{<ar.icon name="triggers" />}}Review triggers<span class="ar-nav__count ar-nav__count--alert" data-count="changes" hidden>1</span></a>
+      <p class="ar-nav__group">Reporting</p>
+      <span class="ar-nav__item is-disabled" title="Not part of this demo">{{<ar.icon name="reports" />}}Reports</span>
+      <div class="ar-side__foot"><span class="ar-nav__item is-disabled" title="Not part of this demo">{{<ar.icon name="settings" />}}Settings</span></div>
+    </nav>
+
+    <div class="ar-main">
+      <header class="ar-top">
+        <button type="button" class="ar-iconbtn ar-menubtn" id="ar-menu" aria-controls="ar-side" aria-expanded="false" aria-label="Open navigation">{{<ar.icon name="menu" />}}</button>
+        <span class="ar-tenant" title="Not part of this demo"><span class="ar-tenant__logo" aria-hidden="true">{{ x.tenant_initials }}</span><span class="ar-tenant__name">{{ x.tenant }}</span>{{<ar.icon name="chevron" cls="ar-ico ar-ico--sm" />}}</span>
+        <span class="ar-search" aria-hidden="true" title="Not part of this demo">{{<ar.icon name="search" cls="ar-ico ar-ico--sm" />}}Search records, AI systems, regulations…</span>
+        <span class="ar-top__spacer"></span>
+        <a class="ar-iconbtn" href="#/dashboard" aria-label="Notifications">{{<ar.icon name="bell" />}}<span class="ar-iconbtn__badge" data-bell hidden>1</span></a>
+        <span class="ar-iconbtn" aria-hidden="true" title="Not part of this demo">{{<ar.icon name="help" />}}</span>
+        <span class="ar-avatar" aria-hidden="true">{{ x.user_initials }}</span>
+      </header>
+
+      {#- Alert for the simulated change: shown on every view -#}
+      <div class="ar-alertbar" data-only="{% for s in sc.scenarios %}{{ s.id }} {% endfor %}" hidden>
+        {%- for s in sc.scenarios %}
+        <section class="ar-alert ar-wrap" data-only="{{ s.id }}" hidden aria-label="Simulated change: {{ s.name }}">
+          <span class="ar-alert__icon" aria-hidden="true">{{<ar.icon name={s.type} />}}</span>
+          <div class="ar-alert__body">
+            <p class="ar-alert__head"><span class="ar-alert__kind">{{ s.type }}</span><span class="ar-pill">Simulated</span><span class="ar-alert__time">Detected today · {{ s.source }}</span></p>
+            <p class="ar-alert__title">{{ s.alert }}</p>
+            <p class="ar-alert__meta"><span data-impact-count="{{ s.id }}">0</span> items flagged for review · <span data-task-count="{{ s.id }}">0</span> tasks created{% if s.effective %} · effective <time data-effective></time>{% endif %}</p>
+          </div>
+          <a class="ar-alert__open" href="#/triggers/{{ s.change }}">Open {{ s.change }}{{<ar.icon name="arrow" cls="ar-ico ar-ico--sm" />}}</a>
+        </section>
+        {%- endfor %}
+      </div>
+
+      <main class="ar-content" id="ar-content">
+        {% include "ai-review-triggers/dashboard.html" %}
+        {% include "ai-review-triggers/tasks.html" %}
+        {% include "ai-review-triggers/systems.html" %}
+        {% include "ai-review-triggers/vendors.html" %}
+        {% include "ai-review-triggers/policies.html" %}
+        {% include "ai-review-triggers/assessments.html" %}
+        {% include "ai-review-triggers/risks.html" %}
+        {% include "ai-review-triggers/regulations.html" %}
+        {% include "ai-review-triggers/triggers.html" %}
+      </main>
+    </div>
+  </div>
+
+  {#- Scenario chooser -#}
+  <dialog class="ar-dialog" id="ar-scenarios" aria-labelledby="ar-dialog-title">
+    <div class="ar-dialog__head">
+      <div>
+        <h2 id="ar-dialog-title">Simulate a change</h2>
+        <p>Pick an event. The workspace shows which review trigger fires, what it flags, what it leaves alone and which tasks it creates.</p>
+      </div>
+      <button type="button" class="ar-iconbtn" data-close-dialog aria-label="Close">{{<ar.icon name="close" />}}</button>
+    </div>
+    <ul class="ar-choices">
+      {%- for s in sc.scenarios %}
+      <li>
+        <button type="button" class="ar-choice" data-scenario="{{ s.id }}" data-change="{{ s.change }}">
+          <span class="ar-choice__icon" aria-hidden="true">{{<ar.icon name={s.type} />}}</span>
+          <span class="ar-choice__text">
+            <span class="ar-choice__type">{{ s.type }}</span>
+            <span class="ar-choice__name">{{ s.name }}</span>
+            <span class="ar-choice__teaser">{{ s.teaser }}</span>
+          </span>
+          <span class="ar-choice__active" hidden>Active</span>
+        </button>
+      </li>
+      {%- endfor %}
+    </ul>
+  </dialog>
+
+  <div class="ar-sr" id="ar-live" aria-live="polite"></div>
+</div>
+<script type="application/json" id="ar-config">{"product": {{ x.product_name | json_encode() | safe }}, "tour": {{ tour.steps | json_encode() | safe }}, "scenarios": [{% for s in sc.scenarios %}{"id": {{ s.id | json_encode() | safe }}, "name": {{ s.name | json_encode() | safe }}, "change": {{ s.change | json_encode() | safe }}}{% if not loop.last %}, {% endif %}{% endfor %}]}</script>
+</body>
+</html>
