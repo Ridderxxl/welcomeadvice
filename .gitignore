@@ -1,0 +1,4 @@
+/public/
+/.zola*
+/__pycache__/
+/tests/__pycache__/

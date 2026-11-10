@@ -1,0 +1,85 @@
+:root {
+  color-scheme: light;
+  --paper: #f7f5f0;
+  --ink: #252b29;
+  --muted: #5b6560;
+  --accent: #245747;
+  --line: #d7ddd3;
+  --card: #e9eee5;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 2rem; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.65; }
+a { color: var(--accent); text-underline-offset: .22em; }
+a:hover { text-decoration-thickness: 2px; }
+a:focus-visible { outline: 3px solid var(--accent); outline-offset: 5px; border-radius: 2px; }
+.page { width: min(100% - 3rem, 48rem); margin-inline: auto; }
+.skip-link { position: absolute; top: -100px; left: 1rem; background: var(--paper); padding: .5rem 1rem; z-index: 2; }
+.skip-link:focus { top: .5rem; }
+.site-header { display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; padding-block: 1.7rem; border-bottom: 1px solid var(--line); }
+.wordmark { display: inline-flex; gap: .6rem; align-items: center; color: var(--ink); font-size: .87rem; font-weight: 650; text-decoration: none; white-space: nowrap; }
+.mark { font-family: Georgia, serif; font-size: 1.65rem; font-weight: 700; line-height: 1; color: var(--accent); }
+nav { display: flex; gap: 1.2rem; font-size: .82rem; }
+nav a { color: var(--muted); text-decoration: none; }
+nav a:hover { color: var(--accent); text-decoration: underline; }
+.hero { padding: 4.8rem 0 4rem; }
+.eyebrow { display: flex; align-items: center; flex-wrap: wrap; gap: .65rem; font-size: .77rem; color: var(--muted); letter-spacing: .03em; margin: 0 0 1.5rem; }
+.location-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.separator { color: #727f77; }
+h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: -.065em; line-height: 1.06; font-size: clamp(3.1rem, 9vw, 5.3rem); margin: 0 0 1.5rem; }
+.title-dot { color: var(--accent); }
+.headline { max-width: 35rem; font-size: clamp(1.2rem, 3.5vw, 1.6rem); line-height: 1.4; letter-spacing: -.015em; margin: 0 0 1.5rem; }
+.intro-copy { color: var(--muted); max-width: 39rem; }
+.intro-copy p { margin: 0 0 1rem; }
+.text-link { display: inline-block; font-weight: 650; margin-top: .5rem; text-decoration: none; border-bottom: 1px solid var(--accent); }
+.section-heading { display: flex; align-items: baseline; gap: .85rem; margin-bottom: 1.4rem; }
+.section-number { font-size: .73rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+h2 { margin: 0; font-size: 1.15rem; font-weight: 650; letter-spacing: -.02em; }
+h3 { margin: 0; font-size: 1rem; font-weight: 650; }
+.work-section, .background-section, .contact-section { padding: 2.5rem 0 3rem; border-top: 1px solid var(--line); }
+.work-card { display: block; padding: 1.8rem 2rem; background: var(--card); border: 1px solid #c9d6c6; border-radius: 10px; text-decoration: none; color: var(--ink); transition: border-color .15s ease, background-color .15s ease; }
+.work-card:hover { background: #e2ebdd; border-color: var(--accent); }
+.card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.15rem; }
+.label { font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); font-weight: 650; }
+.card-arrow { font-size: 1.35rem; color: var(--accent); }
+.work-card h3 { font-family: Georgia, serif; font-size: 1.85rem; font-weight: 400; letter-spacing: -.035em; line-height: 1.2; }
+.work-card p { color: #455348; font-size: .94rem; margin: .85rem 0 1.6rem; max-width: 35rem; }
+.crosswalk-preview { display: flex; align-items: center; gap: .65rem; margin-bottom: 1.5rem; }
+.crosswalk-preview span:not(.connector) { padding: .5rem .65rem; border: 1px solid #c3cfbd; border-radius: 4px; background: rgba(255,255,255,.36); font-size: .72rem; text-align: center; }
+.connector { height: 1px; width: 1.4rem; flex: 1 1 .5rem; background: #96a58c; }
+.read-link { font-size: .85rem; font-weight: 650; color: var(--accent); }
+.annotation { font-size: .78rem; line-height: 1.55; color: var(--muted); margin: .85rem 0 1.8rem; }
+.credential { display: flex; gap: .9rem; align-items: flex-start; }
+.credential-symbol { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; flex: 0 0 1.9rem; background: #e7ebe2; border-radius: 50%; color: var(--accent); font-weight: 700; }
+.credential h3 { font-size: .93rem; }
+.credential p { font-size: .8rem; color: var(--muted); margin: .2rem 0 0; }
+.section-intro { margin: 0 0 1.8rem; color: var(--muted); }
+.experience-list { list-style: none; padding: 0; margin: 0; }
+.experience-list li { padding: 0 0 1.45rem 1.2rem; border-left: 1px solid var(--line); position: relative; }
+.experience-list li::before { content: ""; position: absolute; left: -4px; top: .55rem; width: 7px; height: 7px; background: #879681; border-radius: 50%; }
+.experience-list li:last-child { padding-bottom: 0; }
+.role-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.role-heading span { color: var(--muted); font-size: .76rem; white-space: nowrap; }
+.experience-list p { color: var(--muted); font-size: .91rem; margin: .45rem 0 0; max-width: 37rem; }
+.personal-note { font-size: .82rem; color: var(--muted); margin: 1.9rem 0 0; }
+.contact-section p { color: var(--muted); max-width: 39rem; }
+.contact-link { display: inline-block; font-size: clamp(.93rem, 3vw, 1.2rem); font-weight: 600; margin-top: .6rem; overflow-wrap: anywhere; }
+.site-footer { border-top: 1px solid var(--line); padding: 1.5rem 0 2.5rem; color: var(--muted); font-size: .7rem; }
+.site-footer > div { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.site-footer p { margin: .8rem 0 0; }
+@media (max-width: 520px) {
+  .page { width: calc(100% - 2.5rem); }
+  .site-header { flex-wrap: wrap; gap: .75rem; padding-block: 1.3rem; }
+  nav { gap: 1.1rem; }
+  .hero { padding-block: 3.25rem; }
+  .eyebrow { font-size: .69rem; gap: .4rem; }
+  .work-card { padding: 1.4rem; }
+  .crosswalk-preview { gap: .3rem; }
+  .crosswalk-preview span:not(.connector) { font-size: .63rem; padding: .4rem; }
+  .connector { width: .5rem; }
+  .role-heading { flex-wrap: wrap; gap: .1rem .75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .work-card { transition: none; }
+}

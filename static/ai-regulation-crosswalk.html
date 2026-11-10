@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Regulation Crosswalk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: one working column — header, control row, full-width Sankey, then details + mapping table. */
+:root {
+  --bg: #f2f4f7;
+  --surface: #fcfcfd;
+  --surface-2: #e9edf2;
+  --ink: #11161d;
+  --ink-2: #4a5361;
+  --muted: #727b88;
+  --line: #dde2e8;
+  --accent: #1f3a5f;
+  --accent-ink: #ffffff;
+  --focus: #2a78d6;
+  --gap: #a86b00;
+  --gap-bg: #fff6e0;
+  --halo: rgba(252,252,253,0.92);
+
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+  --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7; --s0: #8b919a;
+
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r: 6px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1116; --surface: #151a21; --surface-2: #212833; --ink: #eef1f5; --ink-2: #b4bcc8;
+    --muted: #8a93a0; --line: #2a313b; --accent: #a9c4ea; --accent-ink: #0e1116; --focus: #6aa6f0;
+    --gap: #e8a93a; --gap-bg: #2a2214; --halo: rgba(21,26,33,0.92);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --s5: #d55181; --s6: #008300; --s7: #9085e9; --s0: #8f959e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1116; --surface: #151a21; --surface-2: #212833; --ink: #eef1f5; --ink-2: #b4bcc8;
+  --muted: #8a93a0; --line: #2a313b; --accent: #a9c4ea; --accent-ink: #0e1116; --focus: #6aa6f0;
+  --gap: #e8a93a; --gap-bg: #2a2214; --halo: rgba(21,26,33,0.92);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  --s5: #d55181; --s6: #008300; --s7: #9085e9; --s0: #8f959e;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-size: 14px; line-height: 1.5; }
+.page { max-width: 1480px; margin: 0 auto; padding-inline: 24px; padding-block: 28px 48px; display: grid; gap: 20px; }
+.page > * { min-width: 0; }
+@media (max-width: 640px) { .page { padding-inline: 16px; padding-block: 20px 40px; } }
+
+header { display: grid; gap: 6px; }
+h1 { font-size: 26px; line-height: 1.2; font-weight: 600; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+.lede { margin: 0; color: var(--ink-2); max-width: 75ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--muted); font-size: 12.5px; margin-top: 4px; }
+.meta b { color: var(--ink-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--font-mono); }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+
+/* Controls */
+.controls { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: flex-start; }
+.ctl { display: grid; gap: 6px; min-width: 0; }
+.ctl-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip, .seg button, .btn {
+  font: inherit; font-size: 13px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 999px; padding: 4px 12px; cursor: pointer; line-height: 1.4;
+}
+.chip[aria-pressed="true"], .btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.chip:disabled { cursor: not-allowed; opacity: 0.85; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; background: var(--surface); }
+.seg button { border: 0; padding: 3px 12px; background: transparent; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.btn:hover, .chip:hover { border-color: var(--muted); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Chart */
+.chart-card { padding: 14px 0 6px; }
+.chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; padding-inline: 16px; align-items: center; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; }
+.sw-gap { width: 14px; height: 10px; border: 1.5px dashed var(--gap); border-radius: 3px; background: var(--gap-bg); }
+.hint { font-size: 12.5px; color: var(--muted); }
+.narrow { display: none; }
+@media (max-width: 900px) { .narrow { display: inline; } }
+.chart-scroll { overflow-x: auto; overflow-y: hidden; position: relative; padding-block: 8px 4px; }
+svg.sankey { display: block; font-family: var(--font-sans); }
+.col-title { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; fill: var(--muted); font-weight: 600; }
+.ribbon { transition: opacity 120ms ease; cursor: pointer; }
+.node { cursor: pointer; }
+.node rect.box { fill: var(--surface-2); stroke: transparent; stroke-width: 1; transition: opacity 120ms ease; }
+.node.gap rect.box { fill: var(--gap-bg); stroke: var(--gap); stroke-dasharray: 4 3; stroke-width: 1.25; }
+.node text { font-size: 11.5px; fill: var(--ink); dominant-baseline: central; pointer-events: none; }
+.node text .nid { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; fill: var(--ink); }
+.node text.count { font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+.node.gap text { font-style: italic; fill: var(--gap); }
+.node.dim { opacity: 0.32; }
+.node.sel rect.box { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: none; }
+.node:focus { outline: none; }
+.node:focus-visible rect.box { stroke: var(--focus); stroke-width: 2; stroke-dasharray: none; }
+@media (prefers-reduced-motion: reduce) { .ribbon, .node rect.box { transition: none; } }
+
+.tip {
+  position: absolute; z-index: 5; pointer-events: none; max-width: 340px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; color: var(--ink-2);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.14); display: grid; gap: 4px;
+}
+.tip strong { color: var(--ink); font-weight: 600; font-size: 13px; }
+.tip .path { color: var(--ink); }
+.tip .k { color: var(--muted); }
+
+/* Lower area */
+.lower { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 980px) { .lower { grid-template-columns: minmax(0, 1fr); } }
+.panel { padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.panel h2, .table-card h2 { font-size: 15px; margin: 0; font-weight: 600; }
+.panel p { margin: 0; color: var(--ink-2); }
+.panel .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+.xlist { display: grid; gap: 10px; }
+.xgroup { display: grid; gap: 4px; }
+.xgroup .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag { font-size: 12px; padding: 1px 8px; border-radius: 4px; background: var(--surface-2); color: var(--ink); }
+.tag.gap { background: var(--gap-bg); color: var(--gap); border: 1px dashed var(--gap); font-style: italic; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; font-size: 12.5px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; color: var(--ink-2); }
+.gaplist { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.gaplist li { display: grid; gap: 2px; }
+.gaplist button { justify-self: start; }
+
+.table-card { padding: 16px 0 4px; min-width: 0; }
+.table-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; padding-inline: 16px; }
+.table-scroll { overflow-x: auto; margin-top: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 900px; font-size: 12.5px; }
+th { text-align: left; font-weight: 600; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-2); }
+td:first-child, th:first-child { padding-left: 16px; }
+td.id { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+td .code { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+td .stage { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
+td.why { min-width: 260px; }
+tr.is-gap td.acc .tag { white-space: nowrap; }
+.empty { padding: 16px; color: var(--muted); }
+
+footer { color: var(--muted); font-size: 12.5px; display: grid; gap: 6px; max-width: 110ch; }
+footer a { color: var(--ink-2); }
+</style>
+</head>
+<body>
+
+
+<div class="page">
+  <header>
+    <h1>AI Regulation Crosswalk</h1>
+    <p class="lede">As part of my study process for the AIGP Exam I combined the parts/steps of different regulations into an overview to see how they line up and to help me understand which steps belong to which regulations. This is a working document, and has known flaws, but it represents my learning process.</p>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <section class="controls" aria-label="Chart settings">
+    <div class="ctl">
+      <span class="ctl-label" id="lbl-cols">Columns</span>
+      <div class="chips" id="cols" role="group" aria-labelledby="lbl-cols"></div>
+    </div>
+    <div class="ctl">
+      <span class="ctl-label" id="lbl-color">Color strands by</span>
+      <div class="seg" id="colorby" role="group" aria-labelledby="lbl-color">
+        <button type="button" id="cb-stage" data-mode="stage">Lifecycle stage</button>
+        <button type="button" id="cb-fn" data-mode="fn">NIST function</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="ctl-label">Focus</span>
+      <div class="chips">
+        <button type="button" class="btn" id="btn-gaps">Show gap paths</button>
+        <button type="button" class="btn" id="btn-clear" hidden>Clear selection</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card chart-card" aria-label="Sankey diagram">
+    <div class="chart-head">
+      <div class="legend" id="legend"></div>
+      <div class="hint">Point at a box or strand to trace it. Click or tap to pin it and filter the table.<span class="narrow"> Scroll sideways to see every column.</span></div>
+    </div>
+    <div class="chart-scroll" id="chartWrap">
+      <svg class="sankey" id="chart" role="group" aria-label="Sankey diagram of the crosswalk"></svg>
+      <div class="tip" id="tip" hidden></div>
+    </div>
+  </section>
+
+  <section class="lower">
+    <aside class="card panel" id="panel" aria-live="polite"></aside>
+    <section class="card table-card" aria-labelledby="tbl-title">
+      <div class="table-head">
+        <h2 id="tbl-title">Mappings</h2>
+        <span class="hint" id="tbl-count"></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>ID</th><th>Lifecycle</th><th>Accountability &amp; oversight</th><th>NIST AI RMF</th><th>EU AI Act</th><th>Why linked</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <footer>
+    <div>NIST AI RMF 1.0 (NIST AI 100-1, Jan 2023), category or subcategory level. NIST is revising the framework; no successor had been published as of August 2026.</div>
+    <div>EU AI Act: Regulation (EU) 2024/1689 as amended by Regulation (EU) 2026/1744 (Digital Omnibus on AI, in force 27 July 2026). Most of the mapped articles are high-risk obligations, which now apply from 2 Dec 2027 (Annex III) and 2 Aug 2028 (Annex I).</div>
+    <div>This is an interpretive mapping for orientation, not legal advice. Sources: <a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener">NIST AI RMF</a> · <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank" rel="noopener">EU AI Act (EUR-Lex)</a> · <a href="https://www.whitecase.com/insight-alert/eu-ai-omnibus-enters-force-amending-ai-act" target="_blank" rel="noopener">White &amp; Case on the AI Omnibus</a>. Data: AI_Regulation_Crosswalk.xlsx, prepared 6 Oct 2026.</div>
+  </footer>
+</div>
+
+<script>
+const DATA = {"stages": [{"name": "Planning & Design", "desc": "Define the use case, context, stakeholders, applicable rules and oversight model."}, {"name": "Data Collection & Preparation", "desc": "Source, label and prepare training, validation and test data, including third-party data."}, {"name": "Model Development", "desc": "Design, build, train and select the model and system, including pre-trained components."}, {"name": "Model Testing", "desc": "Verify and validate performance, robustness, fairness and residual risk before release."}, {"name": "Deployment", "desc": "Decide go/no-go, complete conformity steps and put the system into service."}, {"name": "Maintenance & Monitoring", "desc": "Operate, monitor, handle incidents and manage changes after release."}, {"name": "Decommissioning", "desc": "Retire, withdraw or replace the system and archive what must be kept."}, {"name": "Cross-cutting", "desc": "Governance that applies across every lifecycle stage."}], "accountability": [{"name": "Use case assessment", "gap": false, "desc": "From your accountability & oversight framework."}, {"name": "Risk management", "gap": false, "desc": "From your accountability & oversight framework."}, {"name": "Ethics by design", "gap": false, "desc": "From your accountability & oversight framework."}, {"name": "Data acquisition and use", "gap": false, "desc": "From your accountability & oversight framework."}, {"name": "Model and system development", "gap": false, "desc": "From your accountability & oversight framework."}, {"name": "Training and testing", "gap": false, "desc": "From your accountability & oversight framework."}, {"name": "Deployment and monitoring", "gap": false, "desc": "From your accountability & oversight framework."}, {"name": "Documentation and reporting", "gap": false, "desc": "From your accountability & oversight framework."}, {"name": "Incident management", "gap": false, "desc": "From your accountability & oversight framework."}, {"name": "Gap: human oversight", "gap": true, "desc": "No item in the accountability framework covers human oversight of AI output, although NIST (MAP 3.5) and the EU AI Act (Art. 14) both require it. Consider adding one."}, {"name": "Gap: decommissioning", "gap": true, "desc": "No item in the accountability framework covers retiring or withdrawing a system. NIST (GOVERN 1.7, MANAGE 2.4) and the EU AI Act (Art. 18, 20) both address it."}, {"name": "Gap: roles & training", "gap": true, "desc": "No item in the accountability framework assigns roles, responsibilities or AI training. NIST GOVERN 2 and EU AI Act Art. 4 and 17 cover it."}], "nist": [{"id": "GOVERN 1", "fn": "Govern", "short": "Risk policies & review", "chart": "Risk policies", "desc": "Policies, processes and procedures for mapping, measuring and managing AI risk are in place, transparent and implemented; risk tolerance is set and risk management is reviewed periodically (GOVERN 1.2–1.5)."}, {"id": "GOVERN 1.1", "fn": "Govern", "short": "Legal & regulatory requirements", "chart": "Legal requirements", "desc": "Legal and regulatory requirements involving AI are understood, managed and documented."}, {"id": "GOVERN 1.7", "fn": "Govern", "short": "Safe decommissioning", "chart": "Decommissioning", "desc": "Processes and procedures are in place for decommissioning and phasing out AI systems safely, without increasing risk or reducing the organization's trustworthiness."}, {"id": "GOVERN 2", "fn": "Govern", "short": "Roles & accountability", "chart": "Roles & training", "desc": "Roles, responsibilities and lines of communication for AI risk are documented and clear; personnel receive AI risk management training; executive leadership takes responsibility."}, {"id": "GOVERN 4.2", "fn": "Govern", "short": "Document & communicate impacts", "chart": "Document & communicate", "desc": "Teams document the risks and potential impacts of the AI they design, develop, deploy, evaluate and use, and communicate those impacts more broadly."}, {"id": "GOVERN 6", "fn": "Govern", "short": "Third-party & supply chain", "chart": "Third-party policies", "desc": "Policies and procedures address AI risks and benefits arising from third-party software, data and other supply-chain issues."}, {"id": "MAP 1", "fn": "Map", "short": "Context & intended purpose", "chart": "Context & purpose", "desc": "Document the AI system's intended purpose, beneficial uses, applicable norms and expectations, and the prospective settings in which it will be deployed."}, {"id": "MAP 2–3", "fn": "Map", "short": "Categorization, benefits & costs", "chart": "Categorization", "desc": "Categorize the AI system: define the specific tasks and methods it supports (e.g., generative models, recommenders) and understand its capabilities, targeted usage, goals, and expected benefits and costs."}, {"id": "MAP 2.2/3.5", "fn": "Map", "short": "Knowledge limits & human oversight", "chart": "Limits & oversight", "desc": "Document the AI system's knowledge limits and how humans may use and oversee its output; define human oversight processes."}, {"id": "MAP 4", "fn": "Map", "short": "Component & third-party risks", "chart": "Component risks", "desc": "Map risks and benefits for all AI system components, including third-party software and data sources, linking system limitations to risks and benefits."}, {"id": "MAP 5", "fn": "Map", "short": "Impacts on people & society", "chart": "Impacts on people", "desc": "Identify stakeholders and characterize the likelihood and magnitude of potential positive and negative impacts on individuals, groups, communities, organizations and society."}, {"id": "MEASURE 1", "fn": "Measure", "short": "Methods & metrics", "chart": "Methods & metrics", "desc": "Identify and apply appropriate methods and metrics for the identified risks, starting with the most significant; document risks that cannot be measured."}, {"id": "MEASURE 2", "fn": "Measure", "short": "Trustworthiness evaluation", "chart": "Trustworthiness tests", "desc": "Evaluate the AI system for trustworthy characteristics (validity, reliability, safety, security and resilience, explainability, privacy, fairness) and assess the severity, likelihood and scope of risks, including bias in data or models and security vulnerabilities."}, {"id": "MEASURE 3", "fn": "Measure", "short": "Risk tracking over time", "chart": "Risk tracking", "desc": "Implement mechanisms to continuously track identified AI risks, including emergent ones."}, {"id": "MEASURE 4", "fn": "Measure", "short": "Feedback on measurement", "chart": "Measurement feedback", "desc": "Gather and assess feedback, including from end users and domain experts, on whether measurement remains effective in the deployment context."}, {"id": "MANAGE 1", "fn": "Manage", "short": "Prioritize & treat risks", "chart": "Treat risks", "desc": "Decide whether the system meets its purpose and should proceed; prioritize risks and plan responses based on projected impact (mitigate, transfer, avoid or accept); document residual risk."}, {"id": "MANAGE 2", "fn": "Manage", "short": "Controls & safeguards", "chart": "Controls & safeguards", "desc": "Implement security controls, safeguards and other interventions that maximize benefits and minimize negative impacts."}, {"id": "MANAGE 2.3/4.3", "fn": "Manage", "short": "Incident response", "chart": "Incident response", "desc": "Respond to and recover from previously unknown risks; communicate incidents and errors to relevant AI actors, including affected communities; track, respond to and recover from them."}, {"id": "MANAGE 2.4", "fn": "Manage", "short": "Disengage or deactivate", "chart": "Deactivate", "desc": "Mechanisms are in place, with assigned responsibility, to supersede, disengage or deactivate AI systems whose performance or outcomes are inconsistent with intended use."}, {"id": "MANAGE 3", "fn": "Manage", "short": "Third-party & pre-trained models", "chart": "Third-party models", "desc": "Regularly monitor AI risks and benefits from third-party resources, including pre-trained models used in development."}, {"id": "MANAGE 4.1–4.2", "fn": "Manage", "short": "Monitoring & improvement", "chart": "Monitoring", "desc": "Implement post-deployment monitoring plans (user input, appeal and override, change management) and integrate measurable continual-improvement activities."}], "eu": [{"id": "Art. 4", "title": "AI literacy", "chart": "AI literacy", "desc": "Providers and deployers take measures to support a sufficient level of AI literacy among staff who operate or use AI systems.", "who": "Providers & deployers (all AI systems)", "when": "2 Feb 2025; wording changed from 'ensure' to 'take measures to support' by Reg. (EU) 2026/1744"}, {"id": "Art. 5", "title": "Prohibited practices", "chart": "Prohibited practices", "desc": "Bans certain AI practices outright, such as manipulative techniques, social scoring and untargeted facial-image scraping.", "who": "All operators", "when": "2 Feb 2025; two new prohibitions (non-consensual intimate imagery, CSAM) from 2 Dec 2026"}, {"id": "Art. 6", "title": "High-risk classification", "chart": "High-risk classification", "desc": "A system is high-risk if it is a safety component under Annex I legislation or falls under an Annex III use case; providers who conclude an Annex III system is not high-risk must document that and register it (Art. 6(3)).", "who": "Providers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 9", "title": "Risk management system", "chart": "Risk management", "desc": "A continuous, iterative process across the whole lifecycle: identify, estimate and evaluate risks, adopt measures, and test against predefined metrics; residual risk must be acceptable.", "who": "Providers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 10", "title": "Data & data governance", "chart": "Data governance", "desc": "Training, validation and test data must be relevant, representative and as error-free and complete as possible; data origin and preparation are documented and data is examined for possible biases.", "who": "Providers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 11", "title": "Technical documentation", "chart": "Technical documentation", "desc": "Draw up Annex IV technical documentation (intended purpose, design, data, testing, risk management) before placing on the market and keep it up to date. Simplified for SMEs and small mid-caps.", "who": "Providers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 12", "title": "Record-keeping (logs)", "chart": "Logging", "desc": "The system must technically allow automatic recording of events over its lifetime to support traceability and post-market monitoring.", "who": "Providers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 13", "title": "Transparency to deployers", "chart": "Transparency to deployers", "desc": "Instructions for use state the intended purpose, capabilities and limitations, accuracy levels and human oversight measures.", "who": "Providers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 14", "title": "Human oversight", "chart": "Human oversight", "desc": "Design the system so that natural persons can effectively oversee it: understand its limits, watch for automation bias, and override or stop it.", "who": "Providers (deployers apply it under Art. 26)", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 15", "title": "Accuracy, robustness, cybersecurity", "chart": "Accuracy & cybersecurity", "desc": "Achieve and declare appropriate accuracy, robustness and cybersecurity throughout the lifecycle, including resilience against data poisoning and adversarial inputs.", "who": "Providers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 17", "title": "Quality management system", "chart": "Quality management", "desc": "A documented QMS covering compliance strategy, design and development, testing, data management, risk management, post-market monitoring, incident reporting and an accountability framework. Proportionate for SMEs.", "who": "Providers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 18", "title": "Documentation keeping", "chart": "Documentation keeping", "desc": "Keep technical documentation, QMS documentation and the EU declaration of conformity available to authorities for 10 years after the system is placed on the market.", "who": "Providers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 20", "title": "Corrective actions", "chart": "Corrective actions", "desc": "If a system does not conform, immediately bring it into conformity, withdraw, disable or recall it, and inform distributors, deployers and authorities.", "who": "Providers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 25", "title": "Value-chain responsibilities", "chart": "Value chain", "desc": "Allocates provider duties along the AI value chain; requires written agreements with suppliers of tools, services, components and models that are integrated into a high-risk system.", "who": "Distributors, importers, deployers, third-party suppliers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 26", "title": "Deployer obligations", "chart": "Deployer obligations", "desc": "Use the system according to the instructions, assign competent human oversight, monitor operation, keep logs, and suspend use and inform the provider if a risk appears.", "who": "Deployers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 27", "title": "Fundamental rights impact assessment", "chart": "Fundamental rights (FRIA)", "desc": "Public bodies and certain private deployers (e.g., credit scoring, life and health insurance pricing) assess the impact on fundamental rights before first use.", "who": "Certain deployers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 43", "title": "Conformity assessment", "chart": "Conformity assessment", "desc": "Complete the conformity assessment before placing on the market or putting into service, followed by the declaration of conformity (Art. 47), CE marking (Art. 48) and registration (Art. 49). A substantial modification triggers a new assessment.", "who": "Providers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 50", "title": "Transparency for certain AI systems", "chart": "Transparency duties", "desc": "Tell people when they interact with an AI system, mark synthetic content in a machine-readable way, and disclose deepfakes.", "who": "Providers & deployers", "when": "2 Aug 2026; machine-readable marking grace period to 2 Dec 2026 for systems already on the market"}, {"id": "Art. 53", "title": "GPAI model providers", "chart": "GPAI providers", "desc": "Providers of general-purpose AI models give downstream providers documentation on capabilities and limitations, and publish a copyright policy and a training-data summary.", "who": "GPAI model providers", "when": "2 Aug 2025"}, {"id": "Art. 72", "title": "Post-market monitoring", "chart": "Post-market monitoring", "desc": "Set up a post-market monitoring system and plan that actively collects and analyses performance data throughout the system's lifetime.", "who": "Providers", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}, {"id": "Art. 73", "title": "Serious incident reporting", "chart": "Serious incidents", "desc": "Report serious incidents to market surveillance authorities, generally within 15 days and faster for deaths or widespread incidents.", "who": "Providers (deployers inform the provider)", "when": "With high-risk obligations: 2 Dec 2027 (Annex III) / 2 Aug 2028 (Annex I)"}], "rows": [{"id": "PD-01", "stage": "Planning & Design", "step": "Define use cases", "acc": "Use case assessment", "nist": "MAP 1", "eu": "Art. 11", "why": "Intended purpose and deployment context are the first items of the Annex IV technical documentation."}, {"id": "PD-02", "stage": "Planning & Design", "step": "Identify stakeholders", "acc": "Use case assessment", "nist": "MAP 5", "eu": "Art. 9", "why": "Art. 9 requires identifying known and foreseeable risks to the health, safety and fundamental rights of affected people."}, {"id": "PD-03", "stage": "Planning & Design", "step": "Identify stakeholders", "acc": "Use case assessment", "nist": "MAP 5", "eu": "Art. 27", "why": "Certain deployers must assess the impact on affected groups before first use (FRIA)."}, {"id": "PD-04", "stage": "Planning & Design", "step": "Identify regulations", "acc": "Risk management", "nist": "GOVERN 1.1", "eu": "Art. 5", "why": "First regulatory screen: is the use case a prohibited practice?"}, {"id": "PD-05", "stage": "Planning & Design", "step": "Identify regulations", "acc": "Risk management", "nist": "GOVERN 1.1", "eu": "Art. 6", "why": "Second screen: does the system fall under Annex I or Annex III as high-risk?"}, {"id": "PD-06", "stage": "Planning & Design", "step": "Identify regulations", "acc": "Risk management", "nist": "GOVERN 1.1", "eu": "Art. 50", "why": "Third screen: transparency duties for chatbots, synthetic content and deepfakes."}, {"id": "PD-07", "stage": "Planning & Design", "step": "Categorize the AI system", "acc": "Ethics by design", "nist": "MAP 2–3", "eu": "Art. 6", "why": "The tasks, methods and intended use you categorize here determine the risk class."}, {"id": "PD-08", "stage": "Planning & Design", "step": "Define human oversight & limits", "acc": "Gap: human oversight", "nist": "MAP 2.2/3.5", "eu": "Art. 14", "why": "Both require that people understand the system's limits and can intervene or override it."}, {"id": "PD-09", "stage": "Planning & Design", "step": "Define human oversight & limits", "acc": "Gap: human oversight", "nist": "MAP 2.2/3.5", "eu": "Art. 13", "why": "Instructions for use must state capabilities, limitations and oversight measures."}, {"id": "DC-01", "stage": "Data Collection & Preparation", "step": "Source data (incl. third-party)", "acc": "Data acquisition and use", "nist": "MAP 4", "eu": "Art. 10", "why": "Data origin, collection processes and suitability must be documented and governed."}, {"id": "DC-02", "stage": "Data Collection & Preparation", "step": "Source data (incl. third-party)", "acc": "Data acquisition and use", "nist": "GOVERN 6", "eu": "Art. 25", "why": "Third-party data and component suppliers are covered by value-chain agreements."}, {"id": "DC-03", "stage": "Data Collection & Preparation", "step": "Check data quality, bias & privacy", "acc": "Data acquisition and use", "nist": "MEASURE 2", "eu": "Art. 10", "why": "Art. 10 requires examining data for possible biases and gaps; NIST MEASURE 2.10–2.11 cover privacy and bias."}, {"id": "MD-01", "stage": "Model Development", "step": "Build & secure the system", "acc": "Model and system development", "nist": "MANAGE 2", "eu": "Art. 15", "why": "Security controls and safeguards built in by design: resilience against errors, data poisoning and adversarial inputs."}, {"id": "MD-02", "stage": "Model Development", "step": "Select pre-trained / third-party models", "acc": "Model and system development", "nist": "MANAGE 3", "eu": "Art. 25", "why": "Integrating third-party models and tools needs written agreements on information and technical access."}, {"id": "MD-03", "stage": "Model Development", "step": "Select pre-trained / third-party models", "acc": "Model and system development", "nist": "MANAGE 3", "eu": "Art. 53", "why": "GPAI model providers must give downstream providers documentation on capabilities and limitations."}, {"id": "MD-04", "stage": "Model Development", "step": "Train & tune against defined metrics", "acc": "Training and testing", "nist": "MEASURE 1", "eu": "Art. 15", "why": "Accuracy metrics are chosen during development and must be declared in the instructions for use."}, {"id": "MT-01", "stage": "Model Testing", "step": "Evaluate accuracy, robustness & fairness", "acc": "Training and testing", "nist": "MEASURE 2", "eu": "Art. 15", "why": "Accuracy, robustness and cybersecurity are tested against the levels the provider declares."}, {"id": "MT-02", "stage": "Model Testing", "step": "Test against predefined thresholds", "acc": "Training and testing", "nist": "MEASURE 1", "eu": "Art. 9", "why": "Art. 9 testing must use metrics and probabilistic thresholds defined in advance, before release."}, {"id": "MT-03", "stage": "Model Testing", "step": "Assess risk likelihood & severity", "acc": "Risk management", "nist": "MEASURE 2", "eu": "Art. 9", "why": "Your line 'assess severity, likelihood and scope of risks incl. bias and security' matches Art. 9's estimate-and-evaluate step."}, {"id": "DP-01", "stage": "Deployment", "step": "Go/no-go & conformity", "acc": "Risk management", "nist": "MANAGE 1", "eu": "Art. 9", "why": "Residual risk must be judged acceptable before release; risk responses (mitigate, transfer, avoid, accept) are decided here."}, {"id": "DP-02", "stage": "Deployment", "step": "Go/no-go & conformity", "acc": "Risk management", "nist": "MANAGE 1", "eu": "Art. 43", "why": "Conformity assessment, declaration of conformity, CE marking and registration come before placing on the market."}, {"id": "DP-03", "stage": "Deployment", "step": "Set up logging & monitoring", "acc": "Deployment and monitoring", "nist": "MEASURE 3", "eu": "Art. 12", "why": "Automatic event logs make it possible to track identified risks over time."}, {"id": "DP-04", "stage": "Deployment", "step": "Set up logging & monitoring", "acc": "Deployment and monitoring", "nist": "MEASURE 4", "eu": "Art. 72", "why": "Both set up feedback channels from users and deployers to check that measurement still reflects real-world performance."}, {"id": "MM-01", "stage": "Maintenance & Monitoring", "step": "Monitor performance & drift", "acc": "Deployment and monitoring", "nist": "MANAGE 4.1–4.2", "eu": "Art. 72", "why": "Post-market monitoring collects and analyses performance data across the system's lifetime."}, {"id": "MM-02", "stage": "Maintenance & Monitoring", "step": "Monitor performance & drift", "acc": "Deployment and monitoring", "nist": "MANAGE 4.1–4.2", "eu": "Art. 26", "why": "Deployers monitor operation per the instructions for use, keep logs and suspend use if a risk appears."}, {"id": "MM-03", "stage": "Maintenance & Monitoring", "step": "Monitor third-party components", "acc": "Deployment and monitoring", "nist": "MANAGE 3", "eu": "Art. 25", "why": "Supplier agreements under Art. 25(4) are the channel for ongoing information about third-party components and models."}, {"id": "MM-04", "stage": "Maintenance & Monitoring", "step": "Handle incidents", "acc": "Incident management", "nist": "MANAGE 2.3/4.3", "eu": "Art. 73", "why": "Serious incidents must be reported to market surveillance authorities within fixed deadlines."}, {"id": "MM-05", "stage": "Maintenance & Monitoring", "step": "Handle incidents", "acc": "Incident management", "nist": "MANAGE 2.3/4.3", "eu": "Art. 20", "why": "Non-conformities require immediate corrective action and informing deployers and authorities."}, {"id": "MM-06", "stage": "Maintenance & Monitoring", "step": "Retrain & manage changes", "acc": "Deployment and monitoring", "nist": "MANAGE 4.1–4.2", "eu": "Art. 43", "why": "A substantial modification triggers a new conformity assessment (Art. 43(4))."}, {"id": "DE-01", "stage": "Decommissioning", "step": "Retire or withdraw the system", "acc": "Gap: decommissioning", "nist": "GOVERN 1.7", "eu": "Art. 20", "why": "Withdrawal, disabling and recall are the Act's corrective actions; NIST asks for safe phase-out procedures."}, {"id": "DE-02", "stage": "Decommissioning", "step": "Retire or withdraw the system", "acc": "Gap: decommissioning", "nist": "MANAGE 2.4", "eu": "Art. 20", "why": "Mechanisms to disengage or deactivate a system that behaves outside its intended use."}, {"id": "DE-03", "stage": "Decommissioning", "step": "Archive documentation & logs", "acc": "Gap: decommissioning", "nist": "GOVERN 1.7", "eu": "Art. 18", "why": "Technical and QMS documentation must stay available for 10 years after placing on the market."}, {"id": "CC-01", "stage": "Cross-cutting", "step": "Risk governance & policies", "acc": "Risk management", "nist": "GOVERN 1", "eu": "Art. 9", "why": "The risk management system is a continuous process that runs across the whole lifecycle."}, {"id": "CC-02", "stage": "Cross-cutting", "step": "Risk governance & policies", "acc": "Risk management", "nist": "GOVERN 1", "eu": "Art. 17", "why": "The QMS holds the written policies, procedures and instructions for compliance."}, {"id": "CC-03", "stage": "Cross-cutting", "step": "Roles, responsibilities & training", "acc": "Gap: roles & training", "nist": "GOVERN 2", "eu": "Art. 4", "why": "Staff working with AI need training; the 2026 Omnibus reworded Art. 4 to 'take measures to support' AI literacy."}, {"id": "CC-04", "stage": "Cross-cutting", "step": "Roles, responsibilities & training", "acc": "Gap: roles & training", "nist": "GOVERN 2", "eu": "Art. 17", "why": "The QMS must include an accountability framework setting out management and staff responsibilities (Art. 17(1)(m))."}, {"id": "CC-05", "stage": "Cross-cutting", "step": "Documentation & reporting", "acc": "Documentation and reporting", "nist": "GOVERN 4.2", "eu": "Art. 11", "why": "Technical documentation is kept up to date across the lifecycle."}, {"id": "CC-06", "stage": "Cross-cutting", "step": "Documentation & reporting", "acc": "Documentation and reporting", "nist": "GOVERN 4.2", "eu": "Art. 13", "why": "Risks and impacts reach deployers through the instructions for use."}]};
+
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // ---------- lookups ----------
+  const stageIdx = new Map(DATA.stages.map((s, i) => [s.name, i]));
+  const stageBy = new Map(DATA.stages.map((s) => [s.name, s]));
+  const accBy = new Map(DATA.accountability.map((a) => [a.name, a]));
+  const accIdx = new Map(DATA.accountability.map((a, i) => [a.name, i]));
+  const nistBy = new Map(DATA.nist.map((n) => [n.id, n]));
+  const nistIdx = new Map(DATA.nist.map((n, i) => [n.id, i]));
+  const euBy = new Map(DATA.eu.map((e) => [e.id, e]));
+  const euIdx = new Map(DATA.eu.map((e, i) => [e.id, i]));
+  const FNS = ["Govern", "Map", "Measure", "Manage"];
+  const FN_DESC = {
+    Govern: "Cross-cutting culture, policies, roles and accountability for AI risk.",
+    Map: "Establish context and identify risks and impacts.",
+    Measure: "Analyse, assess, benchmark and monitor risks.",
+    Manage: "Prioritize and act on risks; respond, recover, communicate.",
+  };
+  const rows = DATA.rows.map((r, i) => ({ ...r, i, fn: nistBy.get(r.nist).fn }));
+  const rowBy = new Map(rows.map((r) => [r.id, r]));
+  const stepOrder = new Map();
+  rows.forEach((r) => { const k = r.stage + "|" + r.step; if (!stepOrder.has(k)) stepOrder.set(k, stepOrder.size); });
+
+  const STAGE_COLOR = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6", "--s7", "--s0"];
+  const FN_COLOR = { Govern: "--s1", Map: "--s2", Measure: "--s3", Manage: "--s4" };
+  const colorVar = (r, mode) => mode === "fn" ? FN_COLOR[r.fn] : STAGE_COLOR[stageIdx.get(r.stage)];
+
+  const LEVELS = [
+    { key: "stage", name: "Lifecycle stage", fixed: true, get: (r) => r.stage, order: (v) => stageIdx.get(v),
+      label: (v) => ({ text: v }), info: (v) => ({ title: v, desc: stageBy.get(v).desc }) },
+    { key: "step", name: "Lifecycle step", fixed: true, get: (r) => r.stage + "|" + r.step, order: (v) => stepOrder.get(v),
+      label: (v) => ({ text: v.split("|")[1] }), info: (v) => ({ title: v.split("|")[1], desc: "Step within " + v.split("|")[0] + "." }) },
+    { key: "acc", name: "Accountability & oversight", get: (r) => r.acc, order: (v) => accIdx.get(v),
+      gap: (v) => accBy.get(v).gap, label: (v) => ({ text: v }), info: (v) => ({ title: v, desc: accBy.get(v).desc, gap: accBy.get(v).gap }) },
+    { key: "fn", name: "NIST function", get: (r) => r.fn, order: (v) => FNS.indexOf(v),
+      label: (v) => ({ text: v.toUpperCase() }), info: (v) => ({ title: "NIST " + v.toUpperCase(), desc: FN_DESC[v] }) },
+    { key: "nist", name: "NIST AI RMF", get: (r) => r.nist, order: (v) => nistIdx.get(v),
+      label: (v) => ({ id: v, text: nistBy.get(v).chart }),
+      info: (v) => { const n = nistBy.get(v); return { title: v + " · " + n.short, desc: n.desc, meta: [["Function", n.fn]] }; } },
+    { key: "eu", name: "EU AI Act", get: (r) => r.eu, order: (v) => euIdx.get(v),
+      label: (v) => ({ id: v, text: euBy.get(v).chart }),
+      info: (v) => { const e = euBy.get(v); return { title: v + " · " + e.title, desc: e.desc, meta: [["Applies to", e.who], ["Applies from", e.when]] }; } },
+  ];
+  const levelBy = new Map(LEVELS.map((l) => [l.key, l]));
+
+  // ---------- state ----------
+  const DEFAULT_COLS = ["stage", "acc", "nist", "eu"];
+  let state = { cols: DEFAULT_COLS.slice(), mode: "stage" };
+  try {
+    const saved = JSON.parse(localStorage.getItem("crosswalk-ui") || "null");
+    if (saved && Array.isArray(saved.cols) && saved.cols.filter((c) => levelBy.has(c)).length >= 2) state.cols = saved.cols.filter((c) => levelBy.has(c));
+    if (saved && (saved.mode === "fn" || saved.mode === "stage")) state.mode = saved.mode;
+  } catch (e) {}
+  const save = () => { try { localStorage.setItem("crosswalk-ui", JSON.stringify(state)); } catch (e) {} };
+  let pinned = null;   // { kind: 'node'|'row'|'gaps', key, rows:Set }
+  let hover = null;    // same shape
+
+  // ---------- text measuring ----------
+  const ctx = document.createElement("canvas").getContext("2d");
+  const measure = (txt, font) => { ctx.font = font; return ctx.measureText(txt).width; };
+  const F_TEXT = '400 11.5px "IBM Plex Sans", system-ui, sans-serif';
+  const F_ID = '600 10.5px "IBM Plex Mono", ui-monospace, monospace';
+
+  // ---------- layout ----------
+  const U = 18, MINPAD = 6, MAXPAD = 44, TOP = 30, GAPMIN = 96, GAPMAX = 260;
+  let graph = null;
+
+  function build() {
+    const levels = LEVELS.filter((l) => state.cols.includes(l.key));
+    const cols = levels.map((lvl, k) => {
+      const m = new Map();
+      rows.forEach((r) => {
+        const v = lvl.get(r);
+        if (!m.has(v)) m.set(v, { key: lvl.key + ":" + v, v, lvl, k, rows: [], gap: !!(lvl.gap && lvl.gap(v)) });
+        m.get(v).rows.push(r);
+      });
+      return [...m.values()].sort((a, b) => lvl.order(a.v) - lvl.order(b.v));
+    });
+    // node lookup per row per column
+    const at = rows.map((r) => cols.map((col) => col.find((n) => n.rows.includes(r))));
+
+    // barycentric ordering of free columns
+    const centers = (col) => { const c = new Map(); let acc = 0; col.forEach((n) => { c.set(n, acc + n.rows.length / 2); acc += n.rows.length; }); return c; };
+    const crossings = () => {
+      let x = 0;
+      for (let k = 0; k < cols.length - 1; k++) {
+        const ca = centers(cols[k]), cb = centers(cols[k + 1]);
+        const seg = rows.map((r) => [ca.get(at[r.i][k]), cb.get(at[r.i][k + 1])]);
+        for (let i = 0; i < seg.length; i++) for (let j = i + 1; j < seg.length; j++)
+          if ((seg[i][0] - seg[j][0]) * (seg[i][1] - seg[j][1]) < 0) x++;
+      }
+      return x;
+    };
+    const sortBy = (k, ref) => {
+      const lvl = cols[k][0].lvl;
+      if (lvl.fixed) return;
+      const c = centers(cols[ref]);
+      const bary = new Map(cols[k].map((n) => [n, n.rows.reduce((s, r) => s + c.get(at[r.i][ref]), 0) / n.rows.length]));
+      cols[k].sort((a, b) => (bary.get(a) - bary.get(b)) || (lvl.order(a.v) - lvl.order(b.v)));
+    };
+    let best = cols.map((c) => c.slice()), bestX = crossings();
+    for (let it = 0; it < 12; it++) {
+      for (let k = 1; k < cols.length; k++) sortBy(k, k - 1);
+      for (let k = cols.length - 2; k >= 0; k--) if (k > 0 || !cols[0][0].lvl.fixed) sortBy(k, k + 1);
+      const x = crossings();
+      if (x < bestX) { bestX = x; best = cols.map((c) => c.slice()); }
+    }
+    best.forEach((c, k) => { cols[k] = c; });
+    // local refinement: keep any adjacent swap that removes crossings
+    for (let pass = 0, improved = true; improved && pass < 40; pass++) {
+      improved = false;
+      cols.forEach((col) => {
+        if (col[0].lvl.fixed) return;
+        for (let i = 0; i < col.length - 1; i++) {
+          [col[i], col[i + 1]] = [col[i + 1], col[i]];
+          const x = crossings();
+          if (x < bestX) { bestX = x; improved = true; } else [col[i], col[i + 1]] = [col[i + 1], col[i]];
+        }
+      });
+    }
+
+    // widths per column from labels
+    const colorLevel = state.mode === "fn" ? ["fn", "nist"] : ["stage"];
+    cols.forEach((col) => col.forEach((n) => {
+      const lab = n.lvl.label(n.v);
+      n.label = lab;
+      n.swatch = colorLevel.includes(n.lvl.key);
+      const wId = lab.id ? measure(lab.id, F_ID) + 6 : 0;
+      n.wLabel = wId + measure(lab.text, F_TEXT) + (n.gap ? 8 : 4);
+      n.wCount = measure(String(n.rows.length), F_ID);
+    }));
+    const colW = cols.map((col) => Math.ceil(Math.max(...col.map((n) => 8 + (n.swatch ? 16 : 0) + n.wLabel + 12 + n.wCount + 8))));
+
+    const H = Math.max(...cols.map((col) => rows.length * U + (col.length - 1) * MINPAD));
+    const sumW = colW.reduce((a, b) => a + b, 0);
+    const avail = $("chartWrap").clientWidth - 32;
+    let gapW = cols.length > 1 ? (avail - sumW) / (cols.length - 1) : 0;
+    gapW = Math.max(GAPMIN, Math.min(GAPMAX, gapW));
+    const W = sumW + gapW * (cols.length - 1);
+    const offsetX = Math.max(16, (avail + 32 - W) / 2);
+
+    let x = offsetX;
+    cols.forEach((col, k) => {
+      const total = rows.length * U;
+      const pad = col.length > 1 ? Math.min(MAXPAD, (H - total) / (col.length - 1)) : 0;
+      const used = total + pad * (col.length - 1);
+      let y = TOP + (H - used) / 2;
+      col.forEach((n) => {
+        n.x0 = x; n.x1 = x + colW[k]; n.y0 = y; n.y1 = y + n.rows.length * U; y = n.y1 + pad;
+      });
+      x += colW[k] + gapW;
+    });
+
+    // slot assignment: incoming then outgoing, left to right
+    const outSlot = new Map(), inSlot = new Map(); // key `${row}|${k}` -> y
+    const mid = (n) => (n.y0 + n.y1) / 2;
+    cols.forEach((col, k) => col.forEach((n) => {
+      if (k > 0) {
+        const inc = n.rows.slice().sort((a, b) => (mid(at[a.i][k - 1]) - mid(at[b.i][k - 1])) || (outSlot.get(a.i + "|" + (k - 1)) - outSlot.get(b.i + "|" + (k - 1))));
+        inc.forEach((r, j) => inSlot.set(r.i + "|" + k, n.y0 + j * U));
+      }
+      if (k < cols.length - 1) {
+        const out = n.rows.slice().sort((a, b) => (mid(at[a.i][k + 1]) - mid(at[b.i][k + 1])) ||
+          ((k > 0 ? inSlot.get(a.i + "|" + k) - inSlot.get(b.i + "|" + k) : a.i - b.i)));
+        out.forEach((r, j) => outSlot.set(r.i + "|" + k, n.y0 + j * U));
+      }
+    }));
+    const ribbons = [];
+    for (let k = 0; k < cols.length - 1; k++) rows.forEach((r) => {
+      const s = at[r.i][k], t = at[r.i][k + 1];
+      ribbons.push({ r, k, x0: s.x1, x1: t.x0, y0: outSlot.get(r.i + "|" + k), y1: inSlot.get(r.i + "|" + (k + 1)) });
+    });
+    graph = { cols, ribbons, W: W + offsetX * 2, H: H + TOP + 8, at };
+  }
+
+  // ---------- render ----------
+  const svg = $("chart");
+  let ribbonEls = [], nodeEls = [];
+
+  function el(tag, attrs, parent) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  const ribbonPath = (d) => {
+    const e = 0.7, xm = (d.x0 + d.x1) / 2;
+    const a = d.y0 + e, b = d.y1 + e, c = d.y1 + U - e, f = d.y0 + U - e;
+    return `M${d.x0},${a}C${xm},${a} ${xm},${b} ${d.x1},${b}L${d.x1},${c}C${xm},${c} ${xm},${f} ${d.x0},${f}Z`;
+  };
+
+  function render() {
+    build();
+    const { cols, ribbons, W, H } = graph;
+    svg.innerHTML = "";
+    svg.setAttribute("width", Math.ceil(W));
+    svg.setAttribute("height", Math.ceil(H));
+    svg.setAttribute("viewBox", `0 0 ${Math.ceil(W)} ${Math.ceil(H)}`);
+
+    cols.forEach((col) => {
+      const t = el("text", { x: col[0].x0, y: 12, class: "col-title" }, svg);
+      t.textContent = col[0].lvl.name;
+    });
+
+    const gR = el("g", { class: "ribbons" }, svg);
+    ribbonEls = ribbons.map((d) => {
+      const p = el("path", { d: ribbonPath(d), class: "ribbon", fill: `var(${colorVar(d.r, state.mode)})` }, gR);
+      p.__d = d;
+      p.addEventListener("pointerenter", (ev) => { hover = { kind: "row", key: d.r.id, rows: new Set([d.r.id]) }; apply(); showTip(ev, rowTip(d.r)); });
+      p.addEventListener("pointermove", (ev) => moveTip(ev));
+      p.addEventListener("pointerleave", () => { hover = null; apply(); hideTip(); });
+      p.addEventListener("click", (ev) => { ev.stopPropagation(); togglePin({ kind: "row", key: d.r.id, rows: new Set([d.r.id]) }); });
+      return p;
+    });
+
+    const gN = el("g", { class: "nodes" }, svg);
+    nodeEls = [];
+    cols.forEach((col) => col.forEach((n) => {
+      const info = n.lvl.info(n.v);
+      const g = el("g", { class: "node" + (n.gap ? " gap" : ""), tabindex: "0", role: "button",
+        "aria-label": `${n.lvl.name}: ${info.title}, ${n.rows.length} mapping${n.rows.length > 1 ? "s" : ""}` }, gN);
+      el("rect", { class: "box", x: n.x0, y: n.y0, width: n.x1 - n.x0, height: n.y1 - n.y0, rx: 4 }, g);
+      const cy = (n.y0 + n.y1) / 2;
+      let tx = n.x0 + 8;
+      if (n.swatch) {
+        const sample = n.rows[0];
+        el("rect", { x: tx, y: cy - 5, width: 10, height: 10, rx: 3, fill: `var(${colorVar(sample, state.mode)})` }, g);
+        tx += 16;
+      }
+      const t = el("text", { x: tx, y: cy }, g);
+      if (n.label.id) {
+        const a = el("tspan", { class: "nid" }, t); a.textContent = n.label.id;
+        const b = el("tspan", { dx: 6 }, t); b.textContent = n.label.text;
+      } else t.textContent = n.label.text;
+      const c = el("text", { x: n.x1 - 8, y: cy, class: "count", "text-anchor": "end" }, g);
+      c.textContent = n.rows.length;
+      const sel = () => ({ kind: "node", key: n.key, rows: new Set(n.rows.map((r) => r.id)), node: n });
+      g.addEventListener("pointerenter", (ev) => { hover = sel(); apply(); showTip(ev, nodeTip(n)); });
+      g.addEventListener("pointermove", (ev) => moveTip(ev));
+      g.addEventListener("pointerleave", () => { hover = null; apply(); hideTip(); });
+      g.addEventListener("focus", () => { hover = sel(); apply(); showTipAt(n, nodeTip(n)); });
+      g.addEventListener("blur", () => { hover = null; apply(); hideTip(); });
+      g.addEventListener("click", (ev) => { ev.stopPropagation(); togglePin(sel()); });
+      g.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); togglePin(sel()); } });
+      g.__n = n;
+      nodeEls.push(g);
+    }));
+    renderLegend();
+    apply();
+  }
+
+  function apply() {
+    const act = hover || pinned;
+    const set = act ? act.rows : null;
+    ribbonEls.forEach((p) => {
+      const on = !set || set.has(p.__d.r.id);
+      p.style.opacity = set ? (on ? 0.82 : 0.07) : 0.5;
+    });
+    nodeEls.forEach((g) => {
+      const n = g.__n;
+      const on = !set || n.rows.some((r) => set.has(r.id));
+      g.classList.toggle("dim", !on);
+      g.classList.toggle("sel", !!(pinned && pinned.kind === "node" && pinned.key === n.key));
+    });
+  }
+
+  function togglePin(sel) {
+    pinned = pinned && pinned.kind === sel.kind && pinned.key === sel.key ? null : sel;
+    hover = null;
+    hideTip();
+    apply();
+    renderPanel();
+    renderTable();
+  }
+
+  // ---------- tooltip ----------
+  const tip = $("tip"), wrap = $("chartWrap");
+  function nodeTip(n) {
+    const info = n.lvl.info(n.v);
+    let h = `<strong>${esc(info.title)}</strong><div>${esc(info.desc)}</div>`;
+    (info.meta || []).forEach(([k, v]) => { h += `<div><span class="k">${esc(k)}:</span> ${esc(v)}</div>`; });
+    h += `<div class="k">${n.rows.length} mapping${n.rows.length > 1 ? "s" : ""}</div>`;
+    return h;
+  }
+  function rowTip(r) {
+    const n = nistBy.get(r.nist), e = euBy.get(r.eu);
+    return `<strong><span class="mono">${esc(r.id)}</span> · ${esc(r.step)}</strong>
+      <div class="path">${esc(r.stage)} → ${esc(r.acc)} → ${esc(r.nist)} ${esc(n.short)} → ${esc(r.eu)} ${esc(e.title)}</div>
+      <div>${esc(r.why)}</div>`;
+  }
+  function place(x, y) {
+    const pad = 12, tw = tip.offsetWidth, th = tip.offsetHeight;
+    const maxX = wrap.scrollLeft + wrap.clientWidth - tw - 8;
+    let left = x + pad; if (left > maxX) left = x - tw - pad;
+    let top = y + pad; if (top + th > wrap.scrollHeight - 4) top = y - th - pad;
+    tip.style.left = Math.max(wrap.scrollLeft + 4, left) + "px";
+    tip.style.top = Math.max(4, top) + "px";
+  }
+  function showTip(ev, html) { tip.innerHTML = html; tip.hidden = false; moveTip(ev); }
+  function moveTip(ev) {
+    const b = wrap.getBoundingClientRect();
+    place(ev.clientX - b.left + wrap.scrollLeft, ev.clientY - b.top);
+  }
+  function showTipAt(n, html) { tip.innerHTML = html; tip.hidden = false; place(n.x1, n.y0); }
+  function hideTip() { tip.hidden = true; }
+
+  // ---------- legend ----------
+  function renderLegend() {
+    const lg = $("legend");
+    const items = state.mode === "fn"
+      ? FNS.map((f) => [FN_COLOR[f], "NIST " + f])
+      : DATA.stages.map((s, i) => [STAGE_COLOR[i], s.name]);
+    lg.innerHTML = items.map(([v, t]) => `<span><i class="sw" style="background:var(${v})"></i>${esc(t)}</span>`).join("") +
+      `<span><i class="sw sw-gap"></i>Gap: no matching item</span>`;
+  }
+
+  // ---------- panel ----------
+  const LEVEL_TAG = {
+    stage: (r) => r.stage, step: (r) => r.step, acc: (r) => r.acc, fn: (r) => "NIST " + r.fn,
+    nist: (r) => r.nist + " · " + nistBy.get(r.nist).short, eu: (r) => r.eu + " · " + euBy.get(r.eu).title,
+  };
+  function renderPanel() {
+    const p = $("panel");
+    $("btn-clear").hidden = !pinned;
+    $("btn-gaps").setAttribute("aria-pressed", pinned && pinned.kind === "gaps" ? "true" : "false");
+    if (!pinned) {
+      const gaps = DATA.accountability.filter((a) => a.gap);
+      p.innerHTML = `<span class="eyebrow">At a glance</span>
+        <h2>${gaps.length} gaps in the accountability framework</h2>
+        <p>NIST and the EU AI Act both require these, but no accountability &amp; oversight item covers them.</p>
+        <ul class="gaplist">${gaps.map((g) => `<li><span class="tag gap">${esc(g.name)}</span><span class="hint">${esc(g.desc)}</span></li>`).join("")}</ul>
+        <p class="hint">Select any box or strand in the chart to see everything it maps to.</p>`;
+      return;
+    }
+    const sel = [...pinned.rows].map((id) => rowBy.get(id));
+    let head = "", desc = "", meta = [];
+    if (pinned.kind === "node") {
+      const info = pinned.node.lvl.info(pinned.node.v);
+      head = `<span class="eyebrow">${esc(pinned.node.lvl.name)}</span><h2>${esc(info.title)}</h2>`;
+      desc = info.desc; meta = info.meta || [];
+    } else if (pinned.kind === "row") {
+      const r = sel[0];
+      head = `<span class="eyebrow">Mapping <span class="mono">${esc(r.id)}</span></span><h2>${esc(r.step)}</h2>`;
+      desc = r.why;
+    } else {
+      head = `<span class="eyebrow">Focus</span><h2>Paths through a gap</h2>`;
+      desc = "Every mapping whose accountability item is missing from your framework.";
+    }
+    const groups = LEVELS.filter((l) => !(pinned.kind === "node" && l.key === pinned.node.lvl.key)).map((l) => {
+      const vals = [...new Set(sel.map(LEVEL_TAG[l.key]))];
+      const tags = vals.map((v) => `<span class="tag${l.key === "acc" && accBy.get(v) && accBy.get(v).gap ? " gap" : ""}">${esc(v)}</span>`).join("");
+      return `<div class="xgroup"><span class="eyebrow">${esc(l.name)}</span><div class="tags">${tags}</div></div>`;
+    }).join("");
+    p.innerHTML = `${head}<p>${esc(desc)}</p>
+      ${meta.length ? `<dl class="kv">${meta.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` : ""}
+      <div class="xlist">${groups}</div>`;
+  }
+
+  // ---------- table ----------
+  function renderTable() {
+    const list = pinned ? rows.filter((r) => pinned.rows.has(r.id)) : rows;
+    $("tbl-count").textContent = pinned ? `Showing ${list.length} of ${rows.length}` : `${rows.length} mappings`;
+    $("tbody").innerHTML = list.map((r) => {
+      const a = accBy.get(r.acc), n = nistBy.get(r.nist), e = euBy.get(r.eu);
+      return `<tr class="${a.gap ? "is-gap" : ""}">
+        <td class="id">${esc(r.id)}</td>
+        <td><span class="stage"><i class="sw" style="background:var(${STAGE_COLOR[stageIdx.get(r.stage)]})"></i>${esc(r.stage)}</span><br>${esc(r.step)}</td>
+        <td class="acc">${a.gap ? `<span class="tag gap">${esc(r.acc)}</span>` : esc(r.acc)}</td>
+        <td><span class="code">${esc(r.nist)}</span><br>${esc(n.short)}</td>
+        <td><span class="code">${esc(r.eu)}</span><br>${esc(e.title)}</td>
+        <td class="why">${esc(r.why)}</td></tr>`;
+    }).join("");
+  }
+
+  // ---------- controls ----------
+  function renderControls() {
+    const box = $("cols");
+    box.innerHTML = "";
+    LEVELS.forEach((l) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.id = "col-" + l.key; b.textContent = l.name;
+      const on = state.cols.includes(l.key);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      b.disabled = on && state.cols.length <= 2;
+      if (b.disabled) b.title = "Keep at least two columns";
+      b.addEventListener("click", () => {
+        state.cols = on ? state.cols.filter((c) => c !== l.key) : LEVELS.map((x) => x.key).filter((k) => k === l.key || state.cols.includes(k));
+        save(); renderControls(); render();
+      });
+      box.appendChild(b);
+    });
+    document.querySelectorAll("#colorby button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.mode === state.mode ? "true" : "false"));
+  }
+  document.querySelectorAll("#colorby button").forEach((b) => b.addEventListener("click", () => {
+    state.mode = b.dataset.mode; save(); renderControls(); render();
+  }));
+  $("btn-gaps").addEventListener("click", () => {
+    const set = new Set(rows.filter((r) => accBy.get(r.acc).gap).map((r) => r.id));
+    togglePin({ kind: "gaps", key: "gaps", rows: set });
+  });
+  $("btn-clear").addEventListener("click", () => { if (pinned) togglePin(pinned); });
+  svg.addEventListener("click", () => { if (pinned) togglePin(pinned); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && pinned) togglePin(pinned); });
+
+  // ---------- meta ----------
+  const gapsN = DATA.accountability.filter((a) => a.gap).length;
+  $("meta").innerHTML = [
+    `<span><b>${rows.length}</b> mappings</span>`,
+    `<span><b>${DATA.stages.length}</b> lifecycle stages</span>`,
+    `<span><b>${DATA.nist.length}</b> NIST AI RMF 1.0 categories</span>`,
+    `<span><b>${DATA.eu.length}</b> EU AI Act articles (as amended 2026)</span>`,
+    `<span><b>${gapsN}</b> gaps in the accountability framework</span>`,
+  ].join("");
+
+  // ---------- boot ----------
+  let lastW = 0;
+  const ro = new ResizeObserver(() => {
+    const w = wrap.clientWidth;
+    if (Math.abs(w - lastW) > 2) { lastW = w; render(); }
+  });
+  function start() {
+    renderControls();
+    lastW = wrap.clientWidth;
+    render();
+    renderPanel();
+    renderTable();
+    ro.observe(wrap);
+  }
+  start();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => render());
+})();
+</script>
+
+</body>
+</html>

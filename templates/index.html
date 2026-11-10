@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ config.title }}</title>
+  <meta name="description" content="{{ config.description }}">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#f7f5f0">
+  <link rel="canonical" href="{{ config.base_url }}/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ config.title }}">
+  <meta property="og:description" content="{{ config.description }}">
+  <meta property="og:url" content="{{ config.base_url }}/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css?v=20261007">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="page">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="Welcome Advice home"><span class="mark" aria-hidden="true">w.</span> Welcome Advice</a>
+      <nav aria-label="Main navigation"><a href="#work">Work</a><a href="#background">Background</a><a href="#contact">Contact</a></nav>
+    </header>
+    <main id="main">
+      <section class="hero" aria-labelledby="intro-title">
+        <p class="eyebrow"><span class="location-dot" aria-hidden="true"></span>{{ section.extra.location }} <span class="separator" aria-hidden="true">/</span> Delivery &amp; AI governance</p>
+        <h1 id="intro-title">{{ section.extra.name }}<span class="title-dot" aria-hidden="true">.</span></h1>
+        <p class="headline">{{ section.extra.headline }}</p>
+        <div class="intro-copy">{{ section.content | safe }}</div>
+        <a class="text-link" href="mailto:{{ section.extra.email }}">Say hello <span aria-hidden="true">↗</span></a>
+      </section>
+
+      <section class="work-section" id="work" aria-labelledby="work-title">
+        <div class="section-heading"><span class="section-number" aria-hidden="true">01</span><h2 id="work-title">Work &amp; learning</h2></div>
+        <a class="work-card" href="/ai-regulation-crosswalk.html">
+          <div class="card-top"><span class="label">Working document</span><span class="card-arrow" aria-hidden="true">↗</span></div>
+          <h3>AI Regulation Crosswalk</h3>
+          <p>A visual overview I made while preparing for the AIGP exam: how the steps and topics in different AI governance frameworks line up.</p>
+          <div class="crosswalk-preview" aria-hidden="true"><span>Frameworks</span><span class="connector"></span><span>Shared themes</span><span class="connector"></span><span>Questions to explore</span></div>
+          <span class="read-link">Explore the crosswalk <span aria-hidden="true">→</span></span>
+        </a>
+        <p class="annotation">This is a personal learning artifact with known limitations, not legal advice or a validated compliance assessment.</p>
+        <div class="credential">
+          <span class="credential-symbol" aria-hidden="true">✓</span>
+          <div><h3>Passed the IAPP AIGP exam</h3><p>Artificial Intelligence Governance Professional exam · <time datetime="2026-10-07">7 October 2026</time></p></div>
+        </div>
+      </section>
+
+      <section class="background-section" id="background" aria-labelledby="background-title">
+        <div class="section-heading"><span class="section-number" aria-hidden="true">02</span><h2 id="background-title">What I bring</h2></div>
+        <p class="section-intro">Experience working with the people who request software, the people who build it, and the people who have to use it.</p>
+        <ol class="experience-list">
+          <li><div class="role-heading"><h3>Cleversoft</h3><span>2023–present</span></div><p>Customer implementations of KYC and AML software. I clarify requirements for developers, help customers find a suitable solution, and bring their feedback to product teams.</p></li>
+          <li><div class="role-heading"><h3>Prosegur</h3><span>2020–2023</span></div><p>Led a seven-person global customer-support team, completed CRM deployment in three countries, and supported further rollouts in Latin America.</p></li>
+          <li><div class="role-heading"><h3>Neoris</h3><span>2018–2020</span></div><p>Master-data management and pre-production testing for Cemex’s global CRM rollout.</p></li>
+        </ol>
+        <p class="personal-note">Away from software: an international running and social club, an interest in good tea, and personal open-source projects.</p>
+      </section>
+
+      <section class="contact-section" id="contact" aria-labelledby="contact-title">
+        <div class="section-heading"><span class="section-number" aria-hidden="true">03</span><h2 id="contact-title">Let’s compare notes</h2></div>
+        <p>I’m interested in how AI governance requirements become usable processes, clear responsibilities and decisions people can explain.</p>
+        <p>If you’re attending the IAPP Europe Congress in Brussels this November, I’d enjoy meeting to discuss implementation challenges and share delivery experience.</p>
+        <a class="contact-link" href="mailto:{{ section.extra.email }}">{{ section.extra.email }} <span aria-hidden="true">↗</span></a>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div><span>© 2026 Thomas Bartels</span><span>Welcome Advice · Personal site</span></div>
+      <p>This site and its learning materials are not affiliated with or endorsed by IAPP.</p>
+    </footer>
+  </div>
+</body>
+</html>
