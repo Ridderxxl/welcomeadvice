@@ -1,0 +1,70 @@
+<section class="ar-view" data-view="tasks" data-title="Tasks" hidden>
+  <header class="ar-ph">
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><span>Overview</span></p>
+      <div class="ar-ph__bar"><h1 tabindex="-1">Tasks</h1></div>
+      <p class="ar-ph__lead">Follow-up work across AI systems, policies, assessments and risks. Tasks created by a review trigger show which change they come from.</p>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+    <section class="ar-card ar-card--flush" data-tour="tasks-table">
+      <div class="ar-card__head"><h2 class="ar-card__title" id="tasks-open">Open<span class="ar-count ar-count--muted" data-count="open-tasks"></span></h2></div>
+      <div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">Task</th><th scope="col">Linked to</th><th scope="col">Owner</th><th scope="col">Due</th><th scope="col">Priority</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+        {%- for t in tk.tasks | sort(attribute="due") %}{% if t.status != "Done" %}
+          {{<ar.task_row t={t} inv={inv} gov={gov} roles={tk.roles} />}}
+        {%- endif %}{% endfor %}
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ar-card ar-card--flush">
+      <div class="ar-card__head"><h2 class="ar-card__title" id="tasks-done">Completed</h2></div>
+      <div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">Task</th><th scope="col">Linked to</th><th scope="col">Owner</th><th scope="col">Done</th><th scope="col">Priority</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+        {%- for t in tk.tasks | sort(attribute="due") | reverse %}{% if t.status == "Done" %}
+          {{<ar.task_row t={t} inv={inv} gov={gov} roles={tk.roles} />}}
+        {%- endif %}{% endfor %}
+        </tbody>
+      </table></div>
+    </section>
+  </div></div>
+</section>
+
+{%- for t in tk.tasks %}
+<section class="ar-view" data-view="tasks/{{ t.id }}" data-title="{{ t.id }} · {{ t.title }}" hidden>
+  <header class="ar-ph ar-ph--record">
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><a href="#/tasks">Tasks</a><span aria-hidden="true">/</span><span>{{ t.id }}</span></p>
+      <div class="ar-ph__bar">
+        <div class="ar-ph__title"><span class="ar-ph__icon" aria-hidden="true">{{<ar.icon name="tasks" />}}</span><h1 tabindex="-1">{{ t.title }}</h1>{{<ar.chip label={t.status} />}}{{<ar.prio p={t.priority} />}}</div>
+      </div>
+      <dl class="ar-meta">
+        <div><dt>Task</dt><dd>{{ t.id }}</dd></div>
+        <div><dt>Owner</dt><dd>{{<ar.owner name={t.owner} roles={tk.roles} />}}</dd></div>
+        <div><dt>{% if t.status == "Done" %}Completed{% else %}Due{% endif %}</dt><dd>{{<ar.date d={t.due} />}}</dd></div>
+        <div><dt>Origin</dt><dd>{% if t.origin %}Review trigger · {{<ar.ref id={t.origin} inv={inv} gov={gov} />}}{% elif t.status == "Scheduled" %}Review schedule{% else %}Created by hand{% endif %}</dd></div>
+      </dl>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap ar-cols">
+    <section class="ar-card">
+      <h2 class="ar-card__title">Description</h2>
+      <p class="ar-text">{{ t.description }}</p>
+      {%- if t.origin %}
+      <p class="ar-note">Created automatically when change {{<ar.ref id={t.origin} inv={inv} gov={gov} />}} fired a review trigger. Priority and due date were set from the change.</p>
+      {%- endif %}
+    </section>
+    <section class="ar-card">
+      <h2 class="ar-card__title">Linked records</h2>
+      <ul class="ar-reflist">
+        {%- for l in t.links %}
+        <li>{{<ar.ref id={l} inv={inv} gov={gov} />}}<span class="ar-reflist__id">{{ l }}</span></li>
+        {%- endfor %}
+      </ul>
+    </section>
+  </div></div>
+</section>
+{%- endfor %}

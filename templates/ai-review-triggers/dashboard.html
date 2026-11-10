@@ -1,0 +1,93 @@
+<section class="ar-view" data-view="dashboard" data-title="Dashboard" hidden>
+  <header class="ar-ph">
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><span>Overview</span></p>
+      <div class="ar-ph__bar"><h1 tabindex="-1">Dashboard</h1></div>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+
+    <section class="ar-card ar-about" data-tour="about">
+      <div class="ar-about__main">
+        <h2 class="ar-about__title" id="ar-about-title"><span class="ar-demo__pill">Demo</span>About this demo</h2>
+        <div class="ar-about__text">{{ page.content | safe }}</div>
+        <div class="ar-about__actions">
+          <button type="button" class="ar-btn ar-btn--primary" data-start-tour>Take the tour</button>
+          <button type="button" class="ar-btn" data-open-scenarios>Simulate a change</button>
+        </div>
+      </div>
+      <ul class="ar-concepts">
+        <li><span class="ar-concepts__k">Previous decisions</span><span>Assessments keep every answer, its reasoning and who signed off.</span><a href="#/assessments">Assessments</a></li>
+        <li><span class="ar-concepts__k">Risk mitigations</span><span>Every known risk is linked to the measures that reduce it.</span><a href="#/risks">Risks</a></li>
+        <li><span class="ar-concepts__k">Future risks</span><span>Review triggers watch for changes and flag exactly what a change touches.</span><a href="#/triggers">Review triggers</a></li>
+      </ul>
+    </section>
+
+    <div class="ar-kpis" data-tour="kpis">
+      <a class="ar-kpi" href="#/ai-systems"><span class="ar-kpi__label">AI systems in use</span><span class="ar-kpi__value">{{ [item for item in inv.systems if item.lifecycle == "In use"] | length }}</span><span class="ar-kpi__sub">{{ [item for item in inv.systems if item.lifecycle == "Intake"] | length }} more in intake</span></a>
+      <a class="ar-kpi" href="#/tasks"><span class="ar-kpi__label">Open tasks</span><span class="ar-kpi__value" data-count="open-tasks"></span><span class="ar-kpi__sub">across all records</span></a>
+      <a class="ar-kpi" href="#/risks"><span class="ar-kpi__label">High risks</span><span class="ar-kpi__value" data-count="high-risks"></span><span class="ar-kpi__sub">before measures</span></a>
+      <a class="ar-kpi" href="#/assessments"><span class="ar-kpi__label">Assessments needing action</span><span class="ar-kpi__value" data-count="asm-action"></span><span class="ar-kpi__sub">draft, in review or reopened</span></a>
+    </div>
+
+    <div class="ar-dash">
+      <div class="ar-dash__col">
+        <section class="ar-card ar-card--flush">
+          <div class="ar-card__head"><h2 class="ar-card__title" id="dash-trg">Review triggers</h2><a class="ar-card__link" href="#/triggers">All triggers</a></div>
+          <div class="ar-tablewrap"><table class="ar-table ar-table--compact">
+            <thead><tr><th scope="col">Trigger</th><th scope="col">Watches</th><th scope="col">Status</th></tr></thead>
+            <tbody>
+            {%- for t in gov.triggers %}
+              <tr data-flags="{{ t.scenarios | join(sep=' ') }}">
+                <td class="ar-cell-main">{{ t.name }}</td>
+                <td>{{ t.watches }}</td>
+                <td class="ar-nowrap"><span class="ar-swap" data-hide-in="{{ t.scenarios | join(sep=' ') }}">{{<ar.chip label="Monitoring" />}}</span>{% for sid in t.scenarios %}{% set s = ([item for item in sc.scenarios if item.id == sid] | first) %}<span class="ar-swap" data-only="{{ sid }}" hidden><a class="ar-chip ar-chip--warn" href="#/triggers/{{ s.change }}">Fired today · {{ s.change }}</a></span>{% endfor %}</td>
+              </tr>
+            {%- endfor %}
+            </tbody>
+          </table></div>
+        </section>
+
+        <section class="ar-card">
+          <div class="ar-card__head"><h2 class="ar-card__title" id="dash-dl">Upcoming deadlines</h2><a class="ar-card__link" href="#/tasks">All tasks</a></div>
+          <ul class="ar-list" data-deadlines>
+          {%- for t in tk.tasks | sort(attribute="due") %}{% if t.status != "Done" and t.due >= 0 %}
+            <li class="ar-list__item"{{<ar.attrs item={t} />}}>
+              <span class="ar-list__date">{{<ar.date d={t.due} />}}</span>
+              <a class="ar-list__main" href="#/tasks/{{ t.id }}">{{ t.title }}{% if t.origin %} <span class="ar-origin">From {{ t.origin }}</span>{% endif %}</a>
+              <span class="ar-list__side">{{<ar.prio p={t.priority} />}}</span>
+            </li>
+          {%- endif %}{% endfor %}
+          </ul>
+        </section>
+      </div>
+
+      <div class="ar-dash__col">
+        <section class="ar-card">
+          <div class="ar-card__head"><h2 class="ar-card__title" id="dash-nt">Notifications</h2></div>
+          <ul class="ar-list">
+            {%- for s in sc.scenarios %}
+            <li class="ar-list__item ar-list__item--alert" data-only="{{ s.id }}" hidden>
+              <span class="ar-list__date">Today</span>
+              <a class="ar-list__main" href="#/triggers/{{ s.change }}">{{ s.alert }}</a>
+              <span class="ar-list__side">{{<ar.chip label={s.type} />}}</span>
+            </li>
+            {%- endfor %}
+            <li class="ar-list__item"><span class="ar-list__date">{{<ar.date d={-9} />}}</span><a class="ar-list__main" href="#/assessments/ASM-004">Vendor due diligence for Cacsuma is waiting for approval</a></li>
+            <li class="ar-list__item"><span class="ar-list__date">{{<ar.date d={-20} />}}</span><a class="ar-list__main" href="#/tasks/TSK-109">Q3 full rescreen signed off</a></li>
+            <li class="ar-list__item"><span class="ar-list__date">{{<ar.date d={-40} />}}</span><a class="ar-list__main" href="#/assessments/ASM-003">Intake opened: AI agents in business processes</a></li>
+          </ul>
+        </section>
+
+        <section class="ar-card">
+          <div class="ar-card__head"><h2 class="ar-card__title" id="dash-rc">AI systems by risk class</h2><a class="ar-card__link" href="#/ai-systems">Register</a></div>
+          <ul class="ar-list">
+            {%- for s in inv.systems %}
+            <li class="ar-list__item"><a class="ar-list__main" href="#/ai-systems/{{ s.id }}">{{ s.name }}</a><span class="ar-list__side">{{<ar.chip label={s.risk_class} />}}</span></li>
+            {%- endfor %}
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div></div>
+</section>

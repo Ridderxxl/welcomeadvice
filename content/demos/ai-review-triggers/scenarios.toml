@@ -1,0 +1,73 @@
+# Simulated changes. Each one fires a review trigger (governance.toml) and opens a change
+# record. What it flags is set on the records themselves (flags.<id>); the tasks it
+# creates are in tasks.toml (only = ["<id>"]).
+
+[[scenarios]]
+id = "annex-iii"
+change = "CHG-031"
+trigger = "TRG-1"
+name = "Fraud exemption narrowed"
+type = "Regulation change"
+teaser = "The regulator announces an amendment to EU AI Act Annex III, point 5(b)."
+source = "Regulator monitoring · European Commission (simulated announcement)"
+alert = "EU AI Act: amendment to Annex III, point 5(b) announced"
+detail = "The exception for AI systems used to detect financial fraud is narrowed: it will no longer apply where a system relies on profiling of natural persons."
+effective = true
+priority_note = "Priority follows the time left until the change takes effect: up to 180 days is High."
+expected = "Answer the flagged questions again against the amended text and record any new obligations. Answers that do not cite Annex III 5(b) are carried over."
+
+[[scenarios]]
+id = "wero"
+change = "CHG-032"
+trigger = "TRG-2"
+name = "Wero payments go live"
+type = "New data source"
+teaser = "Instant payments via Wero are analysed in Cacsuma-Detect instead of with static rules."
+source = "Change request · Payments"
+alert = "New data source for Cacsuma-Detect: Wero instant payments"
+detail = "Until now, Wero transactions were screened with a static rule set. From go-live they are analysed in Cacsuma-Detect, next to SEPA credit transfers."
+effective = false
+priority_note = "Priority is set per task: anything needed before go-live is High."
+expected = "Case note: this source does not materially change the EU AI Act evaluation. Confirm it, and bring data governance and the rescreen up to date."
+
+[[scenarios]]
+id = "segments"
+change = "CHG-033"
+trigger = "TRG-2"
+name = "Customer segments in alert review"
+type = "New data source"
+teaser = "Segment, income band and account history are stored to speed up manual alert review."
+source = "Change request · AML team"
+alert = "New customer data for alert review in Cacsuma-Detect"
+detail = "With Wero giving a fuller picture of each customer, the bank assigns a segment and an income band and keeps the account history, so analysts can judge alerts faster."
+effective = false
+priority_note = "Classification questions that may change the risk class are High."
+expected = "Case note: if the data is used only for manual alert evaluation, not for model scoring or commercial purposes, the fraud-detection exception still applies and the system stays minimal risk."
+
+[[scenarios]]
+id = "model-v5"
+change = "CHG-034"
+trigger = "TRG-3"
+name = "Cacsuma model 5.0"
+type = "Model change"
+teaser = "The vendor announces a new model version trained on ten times more transaction data."
+source = "Vendor release notice · Cacsuma"
+alert = "Cacsuma announces model 5.0 for Cacsuma-Detect"
+detail = "Model 5.0 is trained on a transaction data set ten times larger than today's model. Compliance, Cacsuma support and IT need to establish what that means in daily operations."
+effective = false
+priority_note = "Steps of the model review procedure are High; threshold checks follow from the challenger results."
+expected = "Following the model review procedure: run 5.0 as a challenger for at least a month and simulate a yearly review. It must catch at least all previously confirmed true positives."
+
+[[scenarios]]
+id = "caio"
+change = "CHG-035"
+trigger = "TRG-4"
+name = "Chief AI Officer appointed"
+type = "Organisational change"
+teaser = "The board hires a Chief AI Officer, who becomes owner of the AI policy and the model review procedures."
+source = "Board decision · HR"
+alert = "New role: Chief AI Officer"
+detail = "The Chief AI Officer sets the course for AI at the bank, owns the AI policy, the compliance manual and the model review procedure, and becomes the escalation point for AI risks."
+effective = false
+priority_note = "Ownership and escalation come first; re-confirming documents follows."
+expected = "The new owner re-confirms or adjusts each document. Human oversight controls depend on the people who run them, so their owners and escalation paths are re-confirmed as well."

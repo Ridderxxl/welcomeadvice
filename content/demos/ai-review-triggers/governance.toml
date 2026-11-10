@@ -1,0 +1,738 @@
+# Governance: policies, assessments, risks, measures, regulations and review triggers.
+# Derived from the Banco Salamanca case. Scenario keys work as in inventory.toml.
+
+# ---------------------------------------------------------------- Policies
+
+[[policies]]
+id = "POL-001"
+title = "AI Policy"
+kind = "Policy"
+owner = "Chief Compliance Officer"
+version = "1.2"
+status = "In force"
+effective = -126
+next_review = 239
+systems = ["AIS-001", "AIS-002"]
+flags.caio = "Ownership moves to the Chief AI Officer"
+status_in.annex-iii = "Review required"
+status_in.wero = "Review required"
+status_in.segments = "Review required"
+status_in.model-v5 = "Review required"
+status_in.caio = "Owner change"
+history = [
+  { version = "1.2", date = -126, note = "Review triggers for data sources and model changes added" },
+  { version = "1.1", date = -300, note = "Microsoft Copilot added to the scope" },
+  { version = "1.0", date = -420, note = "First version, for transaction monitoring" },
+]
+
+  [[policies.sections]]
+  id = "pol1-scope"
+  number = "1"
+  title = "Purpose & scope"
+  items = [
+    { label = "Why we use AI", text = "To strengthen control processes, starting with transaction monitoring in Compliance." },
+    { label = "Applies to", text = "Every AI system used in operations. In scope today: Cacsuma-Detect and Microsoft Copilot." },
+    { label = "New requests", text = "New uses, such as AI agents in business processes, go through intake and classification before anyone uses them." },
+  ]
+
+  [[policies.sections]]
+  id = "pol1-class"
+  number = "2"
+  title = "Risk classification"
+  items = [
+    { label = "Rule", text = "Every AI system is classified under the EU AI Act before use, and again when a review trigger fires." },
+    { label = "Cacsuma-Detect", text = "Minimal risk. Fraud detection is excepted in Annex III point 5(b); the system does not profile customers and is not customer-facing." },
+    { label = "Microsoft Copilot", text = "Minimal risk. Internal document search; duties for the underlying general-purpose model sit with Microsoft." },
+  ]
+  flags.annex-iii = "Cites Annex III point 5(b)"
+  flags.segments = "Assumes the system does not profile customers"
+
+  [[policies.sections]]
+  id = "pol1-data"
+  number = "3"
+  title = "Data governance"
+  items = [
+    { label = "Inputs", text = "SEPA credit transfers (camt.053) from core banking, screened in Cacsuma-Detect." },
+    { label = "Name data", text = "Legal name, or first and last name with prefixes. No middle names and no nationality." },
+    { label = "Format versions", text = "New camt versions reach all systems with a delay, sometimes months; the versions in use are tracked." },
+    { label = "Retention", text = "10 years after the customer relationship ends, or longer where regulation requires." },
+  ]
+  flags.wero = "New transaction source outside camt.053"
+  flags.segments = "New customer data is stored"
+
+  [[policies.sections]]
+  id = "pol1-oversight"
+  number = "4"
+  title = "Human oversight"
+  items = [
+    { label = "Decisions", text = "No automated reporting: a second compliance officer confirms fraud before it is reported." },
+    { label = "Alert handling", text = "From 98 % alerts are escalated automatically, below 85 % closed; 85–98 % are reviewed one by one." },
+    { label = "Lists", text = "The AML team maintains the allow and block lists. Hits on allow-listed entities are reviewed after the transaction." },
+    { label = "Known gaps", text = "Bulk approve works on every hit, thresholds are vendor defaults, and name matching is not fully understood. Tracked as risks." },
+  ]
+  flags.model-v5 = "Thresholds are vendor defaults for model 4.2"
+  flags.caio = "Controls depend on named owners"
+
+  [[policies.sections]]
+  id = "pol1-review"
+  number = "5"
+  title = "Monitoring & review"
+  items = [
+    { label = "Triggers", text = "Regulation change, new data source, model change and organisational change start a review." },
+    { label = "Scope", text = "A review covers only the parts touched by the change. Tasks are prioritised by the time to the effective date and the number of affected evaluations." },
+    { label = "Schedule", text = "A full review once a year." },
+  ]
+  flags.caio = "Escalation point moves to the Chief AI Officer"
+
+[[policies]]
+id = "POL-002"
+title = "Compliance manual — transaction monitoring"
+kind = "Manual"
+owner = "Chief Compliance Officer"
+version = "3.4"
+status = "In force"
+effective = -210
+next_review = 155
+systems = ["AIS-001"]
+flags.caio = "Ownership moves to the Chief AI Officer"
+status_in.wero = "Review required"
+status_in.segments = "Review required"
+status_in.model-v5 = "Review required"
+status_in.caio = "Owner change"
+history = [
+  { version = "3.4", date = -210, note = "Alert thresholds aligned with the Cacsuma-Detect AI module" },
+  { version = "3.3", date = -560, note = "Allow and block list procedure added" },
+]
+
+  [[policies.sections]]
+  id = "pol2-thresholds"
+  number = "1"
+  title = "Alert thresholds"
+  items = [
+    { label = "Auto-escalate", text = "Likelihood of 98 % or higher." },
+    { label = "Auto-close", text = "Likelihood below 85 %, closed as a false positive." },
+    { label = "Manual review", text = "85–98 %, reviewed one by one." },
+    { label = "Origin", text = "These are Cacsuma's default values." },
+  ]
+  flags.model-v5 = "Thresholds must be re-validated for model 5.0"
+
+  [[policies.sections]]
+  id = "pol2-review"
+  number = "2"
+  title = "Alert review & escalation"
+  items = [
+    { label = "Bulk approve", text = "Analysts can approve any number of alerts in one go." },
+    { label = "Fraud", text = "A second officer confirms; confirmed cases are reported to the regulator." },
+    { label = "Feedback", text = "Confirmed true and false positives are fed back into Cacsuma-Detect." },
+  ]
+  flags.segments = "Analysts will see segment and income data"
+  flags.caio = "Re-confirm with the new owner"
+
+  [[policies.sections]]
+  id = "pol2-screening"
+  number = "3"
+  title = "Sanctions & PEP screening"
+  items = [
+    { label = "Team", text = "Handled by the AML team that also reviews transaction alerts." },
+    { label = "Allow list", text = "Transactions pass by default; hits are reviewed afterwards." },
+    { label = "Block list", text = "Transactions are blocked automatically, whatever the screening result." },
+  ]
+
+  [[policies.sections]]
+  id = "pol2-rescreen"
+  number = "4"
+  title = "Rescreening"
+  items = [
+    { label = "Daily", text = "Screening against the rules that apply that day." },
+    { label = "Monthly and quarterly", text = "A full rescreen of the period looks for new patterns that can become rules." },
+  ]
+  flags.wero = "Wero transactions join the rescreen"
+
+[[policies]]
+id = "POL-003"
+title = "Model review procedure"
+kind = "Procedure"
+owner = "Chief Compliance Officer"
+version = "1.0"
+status = "In force"
+effective = -126
+next_review = 239
+systems = ["AIS-001"]
+flags.caio = "Ownership moves to the Chief AI Officer"
+status_in.model-v5 = "Procedure started"
+status_in.caio = "Owner change"
+history = [
+  { version = "1.0", date = -126, note = "First version" },
+]
+
+  [[policies.sections]]
+  id = "pol3-notice"
+  number = "1"
+  title = "Vendor model updates"
+  items = [
+    { label = "Start", text = "Every new model version from Cacsuma starts an impact session with Cacsuma support, IT and Compliance." },
+  ]
+  flags.model-v5 = "Applies to model 5.0"
+
+  [[policies.sections]]
+  id = "pol3-challenger"
+  number = "2"
+  title = "Challenger run"
+  items = [
+    { label = "Run", text = "The new model runs next to the current one for at least one month." },
+  ]
+  flags.model-v5 = "Applies to model 5.0"
+
+  [[policies.sections]]
+  id = "pol3-acceptance"
+  number = "3"
+  title = "Acceptance"
+  items = [
+    { label = "Test", text = "A simulated yearly review must show that the new model catches at least all previously confirmed true positives." },
+  ]
+  flags.model-v5 = "Applies to model 5.0"
+
+  [[policies.sections]]
+  id = "pol3-feedback"
+  number = "4"
+  title = "Feedback loop"
+  items = [
+    { label = "Outcomes", text = "Confirmed true and false positives are shared with Cacsuma-Detect." },
+  ]
+
+# ---------------------------------------------------------------- Assessments
+# Steps follow the evaluation flow: intake → is it AI → role → risk class →
+# risks & measures → review & approval. state: done | current | pending
+
+[[assessments]]
+id = "ASM-001"
+title = "EU AI Act classification"
+template = "EU AI Act classification"
+subject = "AIS-001"
+status = "Approved"
+result = "Minimal risk"
+version = "2"
+updated = -118
+status_in.annex-iii = "Re-assessment required"
+status_in.wero = "Partial re-check"
+status_in.segments = "Re-assessment required"
+status_in.model-v5 = "Partial re-check"
+status_in.caio = "Re-approval required"
+
+  [[assessments.steps]]
+  id = "a1-intake"
+  title = "Intake"
+  state = "done"
+  questions = [
+    { id = "a1-purpose", q = "What is the system used for?", a = "Fraud and AML monitoring", why = "Finds anomalous transactions and screens names against sanctions and PEP lists." },
+    { id = "a1-model", q = "Which model and provider?", a = "Cacsuma model 4.2", why = "Delivered by Cacsuma as a module upgrade of Cacsuma-Detect.", flags = { model-v5 = "Provider announced model 5.0" } },
+    { id = "a1-data", q = "Which data does it use?", a = "Transactions and names", why = "SEPA credit transfers (camt.053) from core banking; customer names for sanctions and PEP screening.", flags = { wero = "New source: Wero instant payments", segments = "New data: segment, income band, account history" } },
+    { id = "a1-users", q = "Who uses the output?", a = "AML analysts", why = "Alerts are reviewed in the Cacsuma-Detect workbench." },
+  ]
+
+  [[assessments.steps]]
+  id = "a1-ai"
+  title = "Is it an AI system?"
+  state = "done"
+  result = "Yes, under Article 3(1)"
+  questions = [
+    { id = "a1-infer", q = "Does it infer from its inputs how to generate outputs?", a = "Yes", why = "A trained model scores each transaction; full rescreens add new patterns as rules." },
+    { id = "a1-autonomy", q = "Does it work with some level of autonomy?", a = "Yes", why = "Daily screening and alert creation run without manual steps." },
+    { id = "a1-influence", q = "Can its outputs influence decisions?", a = "Yes", why = "Alerts drive escalation, closure and reporting." },
+  ]
+
+  [[assessments.steps]]
+  id = "a1-role"
+  title = "Role"
+  state = "done"
+  result = "Deployer"
+  questions = [
+    { id = "a1-own-name", q = "Do we put the system into service under our own name?", a = "No", why = "Cacsuma provides it under its own name." },
+    { id = "a1-modified", q = "Have we substantially modified it or changed its intended purpose?", a = "No", why = "Used as delivered, for its intended purpose." },
+  ]
+
+  [[assessments.steps]]
+  id = "a1-class"
+  title = "Risk class"
+  state = "done"
+  result = "Minimal risk"
+  questions = [
+    { id = "a1-prohibited", q = "Is the use a prohibited practice (Article 5)?", a = "No", why = "No manipulation, social scoring or biometric use." },
+    { id = "a1-annex1", q = "Is it a safety component of a product under Annex I?", a = "No", why = "Standalone software." },
+    { id = "a1-annex3", q = "Is the use case listed in Annex III?", a = "No, excepted", why = "Annex III point 5(b) excepts AI systems used to detect financial fraud.", flags = { annex-iii = "Cites the amended provision" } },
+    { id = "a1-profiling", q = "Does the system profile natural persons?", a = "No", why = "It scores transactions, not customers.", flags = { annex-iii = "The exception may now depend on this answer", segments = "Segment and income data may count as profiling" } },
+    { id = "a1-transparency", q = "Do transparency duties apply (Article 50)?", a = "No", why = "Not customer-facing; no generated content is shown to people outside the bank." },
+  ]
+
+  [[assessments.steps]]
+  id = "a1-risks"
+  title = "Risks & measures"
+  state = "done"
+  result = "4 risks, residual medium or low"
+  risks = ["RSK-001", "RSK-002", "RSK-003", "RSK-004"]
+  questions = [
+    { id = "a1-risk-note", q = "Are the residual risks acceptable?", a = "Yes, with open measures", why = "Bulk approve and name matching stay open until their measures are in place.", flags = { model-v5 = "Risk levels depend on model behaviour" } },
+  ]
+
+  [[assessments.steps]]
+  id = "a1-approval"
+  title = "Review & approval"
+  state = "done"
+  signoffs = [
+    { team = "AI governance", who = "Chief Compliance Officer", decision = "Approved", date = -118, note = "Re-assessed after the AI module upgrade." },
+    { team = "Privacy", who = "Data Protection Officer", decision = "Approved", date = -120, note = "No new categories of personal data." },
+    { team = "IT security", who = "IT security", decision = "Approved", date = -121, note = "No change to how the system is hosted." },
+  ]
+  flags.caio = "Approver for AI governance becomes the Chief AI Officer"
+
+[[assessments]]
+id = "ASM-002"
+title = "EU AI Act classification"
+template = "EU AI Act classification"
+subject = "AIS-002"
+status = "Approved"
+result = "Minimal risk"
+version = "1"
+updated = -160
+status_in.caio = "Re-approval required"
+
+  [[assessments.steps]]
+  id = "a2-intake"
+  title = "Intake"
+  state = "done"
+  questions = [
+    { id = "a2-purpose", q = "What is the system used for?", a = "Document search", why = "Finding documents on SharePoint and on the employee's own computer." },
+    { id = "a2-model", q = "Which model and provider?", a = "Microsoft 365 Copilot", why = "Standard E5 licence." },
+    { id = "a2-users", q = "Who uses the output?", a = "Branch employees", why = "Every branch." },
+  ]
+
+  [[assessments.steps]]
+  id = "a2-ai"
+  title = "Is it an AI system?"
+  state = "done"
+  result = "Yes, built on a general-purpose AI model"
+  questions = [
+    { id = "a2-infer", q = "Does it infer from its inputs how to generate outputs?", a = "Yes", why = "Generates answers from documents." },
+  ]
+
+  [[assessments.steps]]
+  id = "a2-role"
+  title = "Role"
+  state = "done"
+  result = "Deployer"
+  questions = [
+    { id = "a2-config", q = "Can users build their own flows or agents?", a = "No", why = "Not possible in the E5 set-up." },
+  ]
+
+  [[assessments.steps]]
+  id = "a2-class"
+  title = "Risk class"
+  state = "done"
+  result = "Minimal risk"
+  questions = [
+    { id = "a2-prohibited", q = "Is the use a prohibited practice (Article 5)?", a = "No", why = "Document search only." },
+    { id = "a2-annex3", q = "Is the use case listed in Annex III?", a = "No", why = "Not used for decisions about people." },
+    { id = "a2-gpai", q = "Who carries the duties for the general-purpose model?", a = "Microsoft", why = "Transparency duties for the model sit with the provider." },
+  ]
+
+  [[assessments.steps]]
+  id = "a2-risks"
+  title = "Risks & measures"
+  state = "done"
+  result = "1 measure"
+  measures = ["MSR-007"]
+
+  [[assessments.steps]]
+  id = "a2-approval"
+  title = "Review & approval"
+  state = "done"
+  signoffs = [
+    { team = "AI governance", who = "Chief Compliance Officer", decision = "Approved", date = -160, note = "" },
+    { team = "Privacy", who = "Data Protection Officer", decision = "Approved", date = -162, note = "" },
+    { team = "IT security", who = "IT security", decision = "Approved", date = -163, note = "Agents and cloud flows stay disabled." },
+  ]
+  flags.caio = "Approver for AI governance becomes the Chief AI Officer"
+
+[[assessments]]
+id = "ASM-003"
+title = "Intake: AI agents in business processes"
+template = "EU AI Act classification"
+subject = "AIS-003"
+status = "Draft"
+result = "Not classified"
+version = "1"
+updated = -40
+blocker = "On hold until IT has evaluated the security risks of AI agents in business processes, planned for next year."
+status_in.caio = "Owner change"
+
+  [[assessments.steps]]
+  id = "a3-intake"
+  title = "Intake"
+  state = "current"
+  questions = [
+    { id = "a3-purpose", q = "What is the system used for?", a = "Operational tasks", why = "Departments want agents to take over steps in day-to-day processes." },
+    { id = "a3-model", q = "Which model and provider?", a = "Not chosen", why = "Candidates: Microsoft Copilot agents, Claude Cowork." },
+    { id = "a3-data", q = "Which data does it use?", a = "Open", why = "Depends on the processes in scope." },
+  ]
+  flags.caio = "Intake decision moves to the Chief AI Officer"
+
+  [[assessments.steps]]
+  id = "a3-ai"
+  title = "Is it an AI system?"
+  state = "pending"
+
+  [[assessments.steps]]
+  id = "a3-role"
+  title = "Role"
+  state = "pending"
+
+  [[assessments.steps]]
+  id = "a3-class"
+  title = "Risk class"
+  state = "pending"
+
+  [[assessments.steps]]
+  id = "a3-risks"
+  title = "Risks & measures"
+  state = "pending"
+  risks = ["RSK-005"]
+
+  [[assessments.steps]]
+  id = "a3-approval"
+  title = "Review & approval"
+  state = "pending"
+
+[[assessments]]
+id = "ASM-004"
+title = "Vendor AI due diligence"
+template = "Vendor AI due diligence"
+subject = "VEN-001"
+status = "In review"
+result = "3 findings"
+version = "1"
+updated = -9
+status_in.model-v5 = "Finding confirmed"
+
+  [[assessments.steps]]
+  id = "a4-contract"
+  title = "Contract"
+  state = "done"
+  questions = [
+    { id = "a4-liability", q = "Are liability and indemnity covered?", a = "Yes", why = "Reviewed by Compliance and Purchasing." },
+    { id = "a4-ai-clauses", q = "Does the contract cover the AI module (model changes, training data, transparency)?", a = "No", why = "Finding 1: the contract was reviewed for liability only." },
+  ]
+
+  [[assessments.steps]]
+  id = "a4-model"
+  title = "Model changes"
+  state = "done"
+  questions = [
+    { id = "a4-notice", q = "Must the vendor announce new model versions in advance?", a = "Not agreed", why = "Finding 2: no notice period.", flags = { model-v5 = "Model 5.0 announced without an agreed notice period" } },
+    { id = "a4-challenger", q = "Can we run a new version as a challenger before switching?", a = "Informally", why = "Possible on request, not in the contract.", flags = { model-v5 = "Needed for the model 5.0 challenger run" } },
+  ]
+
+  [[assessments.steps]]
+  id = "a4-data"
+  title = "Data use"
+  state = "done"
+  questions = [
+    { id = "a4-feedback", q = "Does the vendor use our alert outcomes?", a = "Yes", why = "Confirmed true and false positives feed the model." },
+    { id = "a4-documented", q = "Is that use documented in the contract?", a = "No", why = "Part of finding 1." },
+  ]
+
+  [[assessments.steps]]
+  id = "a4-support"
+  title = "Transparency & support"
+  state = "done"
+  questions = [
+    { id = "a4-matching", q = "Can the vendor explain how name matching handles spelling and transliteration?", a = "Requested", why = "Finding 3: no answer yet on the Levenshtein matching." },
+  ]
+
+  [[assessments.steps]]
+  id = "a4-approval"
+  title = "Review & approval"
+  state = "current"
+  signoffs = [
+    { team = "Compliance", who = "Chief Compliance Officer", decision = "Pending", date = 0, note = "Waiting for the contract addendum." },
+    { team = "Purchasing", who = "Purchasing", decision = "Pending", date = 0, note = "" },
+  ]
+
+# ---------------------------------------------------------------- Risks
+# likelihood and impact: 1 = low … 4 = very high. Score = likelihood × impact.
+
+[[risks]]
+id = "RSK-001"
+title = "Bulk approve lets analysts skip the individual review of 85–98 % alerts"
+short = "Bulk approve skips review"
+system = "AIS-001"
+owner = "AML team lead"
+likelihood = 3
+impact = 3
+residual_likelihood = 2
+residual_impact = 3
+measures = ["MSR-001", "MSR-005"]
+status = "Open"
+flags.caio = "Owner of the control changes"
+
+[[risks]]
+id = "RSK-002"
+title = "Name matching misses misspelled or transliterated names"
+short = "Name matching gaps"
+system = "AIS-001"
+owner = "Chief Compliance Officer"
+likelihood = 3
+impact = 3
+residual_likelihood = 2
+residual_impact = 3
+measures = ["MSR-006"]
+status = "Open"
+flags.model-v5 = "Matching behaviour may change with model 5.0"
+flags.caio = "Owner of the control changes"
+
+[[risks]]
+id = "RSK-003"
+title = "Alert thresholds are vendor defaults, not set to the bank's risk appetite"
+short = "Vendor-default thresholds"
+system = "AIS-001"
+owner = "AML team lead"
+likelihood = 2
+impact = 3
+residual_likelihood = 2
+residual_impact = 2
+measures = ["MSR-001"]
+status = "Open"
+flags.model-v5 = "Thresholds must be re-validated for model 5.0"
+
+[[risks]]
+id = "RSK-004"
+title = "Outdated camt.053 versions delay or drop transaction fields"
+short = "camt version lag"
+system = "AIS-001"
+owner = "IT operations"
+likelihood = 2
+impact = 2
+residual_likelihood = 1
+residual_impact = 2
+measures = ["MSR-009"]
+status = "Open"
+flags.wero = "New message format next to camt.053"
+
+[[risks]]
+id = "RSK-005"
+title = "AI agents are used in business processes before their security risks are assessed"
+short = "Unassessed AI agents"
+system = "AIS-003"
+owner = "IT security"
+likelihood = 3
+impact = 4
+residual_likelihood = 1
+residual_impact = 4
+measures = ["MSR-007"]
+status = "Open"
+
+[[risks]]
+id = "RSK-006"
+title = "The vendor contract has no AI-specific clauses"
+short = "No AI clauses in contract"
+system = "AIS-001"
+owner = "Purchasing"
+likelihood = 3
+impact = 2
+residual_likelihood = 1
+residual_impact = 2
+measures = ["MSR-008"]
+status = "Open"
+flags.model-v5 = "No agreed notice period for model changes"
+
+[[risks]]
+id = "RSK-007"
+title = "Segment and income data are reused for model scoring or commercial purposes"
+short = "Purpose creep: segment data"
+system = "AIS-001"
+owner = "Data Protection Officer"
+likelihood = 2
+impact = 4
+residual_likelihood = 1
+residual_impact = 4
+measures = ["MSR-010"]
+status = "New"
+only = ["segments"]
+
+# ---------------------------------------------------------------- Measures
+
+[[measures]]
+id = "MSR-001"
+title = "Individual review of alerts scored 85–98 %"
+kind = "Human oversight"
+system = "AIS-001"
+owner = "AML team lead"
+status = "Partially effective"
+note = "Bulk approve is still available for every hit."
+flags.model-v5 = "Score bands may shift with model 5.0"
+flags.caio = "Re-confirm the control owner"
+
+[[measures]]
+id = "MSR-002"
+title = "Second officer confirms fraud before it is reported"
+kind = "Human oversight"
+system = "AIS-001"
+owner = "Chief Compliance Officer"
+status = "Implemented"
+note = ""
+flags.caio = "Escalation path changes"
+
+[[measures]]
+id = "MSR-003"
+title = "Allow and block lists, with review after the transaction for allow-listed hits"
+kind = "Process"
+system = "AIS-001"
+owner = "AML team lead"
+status = "Implemented"
+note = ""
+
+[[measures]]
+id = "MSR-004"
+title = "Retention: 10 years after the customer relationship ends"
+kind = "Data governance"
+system = "AIS-001"
+owner = "IT operations"
+status = "Implemented"
+note = ""
+flags.segments = "Retention for the new customer data is not defined"
+
+[[measures]]
+id = "MSR-005"
+title = "Disable bulk approve for alerts scored 85–98 %"
+kind = "Human oversight"
+system = "AIS-001"
+owner = "AML team lead"
+status = "Planned"
+note = ""
+
+[[measures]]
+id = "MSR-006"
+title = "Vendor walkthrough and test set for name matching"
+kind = "Transparency"
+system = "AIS-001"
+owner = "Chief Compliance Officer"
+status = "Planned"
+note = ""
+
+[[measures]]
+id = "MSR-007"
+title = "No custom flows or agents in the Copilot set-up"
+kind = "Configuration"
+system = "AIS-002"
+owner = "IT"
+status = "Implemented"
+note = "Standard E5 configuration."
+
+[[measures]]
+id = "MSR-008"
+title = "AI clauses in the Cacsuma contract"
+kind = "Contract"
+system = "AIS-001"
+owner = "Purchasing"
+status = "In progress"
+note = ""
+flags.model-v5 = "Notice period for model changes needed now"
+
+[[measures]]
+id = "MSR-009"
+title = "Daily screening plus monthly and quarterly full rescreen"
+kind = "Monitoring"
+system = "AIS-001"
+owner = "AML team lead"
+status = "Implemented"
+note = ""
+flags.wero = "Extend to Wero transactions"
+
+[[measures]]
+id = "MSR-010"
+title = "Keep segment and income data out of model scoring and commercial use"
+kind = "Purpose limitation"
+system = "AIS-001"
+owner = "Data Protection Officer"
+status = "Planned"
+note = ""
+only = ["segments"]
+
+# ---------------------------------------------------------------- Regulations
+
+[[regulations]]
+id = "REG-001"
+name = "EU AI Act"
+reference = "Regulation (EU) 2024/1689"
+status = "Monitored"
+sources = ["European Commission and AI Office announcements", "Official Journal of the European Union"]
+flags.annex-iii = "Amendment to Annex III point 5(b) announced"
+status_in.annex-iii = "Change announced"
+provisions = [
+  { ref = "Art. 3(1)", topic = "Definition of an AI system", used = ["ASM-001", "ASM-002"] },
+  { ref = "Art. 5", topic = "Prohibited practices", used = ["ASM-001", "ASM-002"] },
+  { ref = "Art. 6 and Annex III", topic = "High-risk use cases", used = ["ASM-001", "ASM-002"] },
+  { ref = "Annex III point 5(b)", topic = "Credit scoring, with an exception for detecting financial fraud", used = ["ASM-001", "POL-001"], flags = { annex-iii = "Amendment announced" } },
+  { ref = "Art. 50", topic = "Transparency duties", used = ["ASM-001"] },
+  { ref = "General-purpose AI models", topic = "Duties of model providers", used = ["ASM-002"] },
+]
+
+[[feed]]
+id = "RC-018"
+date = 0
+title = "Amendment to Annex III, point 5(b) announced (simulated)"
+status = "Impact analysed"
+impact = "Flagged in one assessment, one policy and one AI system. See CHG-031."
+only = ["annex-iii"]
+
+[[feed]]
+id = "RC-012"
+date_text = "2 August 2025"
+title = "Obligations for general-purpose AI models apply"
+status = "Processed"
+impact = "Confirmed for Microsoft Copilot (ASM-002): the duties sit with the model provider."
+
+[[feed]]
+id = "RC-007"
+date_text = "2 February 2025"
+title = "Prohibited practices and AI literacy rules apply"
+status = "Processed"
+impact = "No prohibited practices in use (ASM-001, ASM-002)."
+
+# ---------------------------------------------------------------- Review triggers
+# From section 5 of the AI policy. scenarios = which simulated changes fire this trigger.
+
+[[triggers]]
+id = "TRG-1"
+name = "Regulation change"
+fires = "A regulator announces a re-evaluation or a specific change, or a change takes effect."
+watches = "Official channels of every regulation in the library"
+scope = "Only the answers and passages that cite the changed provision"
+owner = "Compliance"
+scenarios = ["annex-iii"]
+
+[[triggers]]
+id = "TRG-2"
+name = "New data source"
+fires = "A new data source or data type is connected to an AI system."
+watches = "Change requests and data intake forms"
+scope = "Data governance, plus classification answers that depend on input data"
+owner = "AI system owner"
+scenarios = ["wero", "segments"]
+
+[[triggers]]
+id = "TRG-3"
+name = "Model change"
+fires = "A provider announces or deploys a new model version."
+watches = "Vendor release notices"
+scope = "Model, thresholds, risks and the model review procedure"
+owner = "AI system owner and IT"
+scenarios = ["model-v5"]
+
+[[triggers]]
+id = "TRG-4"
+name = "Organisational change"
+fires = "Roles or ownership in the compliance structure change."
+watches = "Board decisions and HR changes"
+scope = "Ownership, approvals, escalation paths and human oversight controls"
+owner = "Compliance"
+scenarios = ["caio"]

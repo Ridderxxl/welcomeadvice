@@ -1,0 +1,131 @@
+<section class="ar-view" data-view="risks" data-title="Risks" hidden>
+  <header class="ar-ph">
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><span>Governance</span></p>
+      <div class="ar-ph__bar"><h1 tabindex="-1">Risks</h1></div>
+      <p class="ar-ph__lead">Known risks, scored for likelihood and impact before and after the measures that mitigate them.</p>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+    <div class="ar-riskgrid">
+      <section class="ar-card" data-tour="risk-matrix">
+        <h2 class="ar-card__title" id="matrix-title">Risk matrix <span class="ar-card__hint">before measures</span></h2>
+        <table class="ar-matrix">
+          <caption class="ar-sr">Risks by likelihood (rows) and impact (columns), before measures</caption>
+          <thead><tr><th scope="col"><span class="ar-sr">Likelihood</span></th>{% for i in [1, 2, 3, 4] %}<th scope="col">{% if i == 1 %}Minor{% elif i == 2 %}Moderate{% elif i == 3 %}Major{% else %}Severe{% endif %}</th>{% endfor %}</tr></thead>
+          <tbody>
+          {%- for l in [4, 3, 2, 1] %}
+            <tr>
+              <th scope="row">{% if l == 4 %}Almost certain{% elif l == 3 %}Likely{% elif l == 2 %}Possible{% else %}Rare{% endif %}</th>
+              {%- for i in [1, 2, 3, 4] %}
+              {%- set score = l * i %}
+              <td class="ar-matrix__cell ar-matrix__cell--{% if score >= 12 %}vhigh{% elif score >= 8 %}high{% elif score >= 4 %}medium{% else %}low{% endif %}">
+                {%- for r in gov.risks %}{% if r.likelihood == l and r.impact == i %}<a class="ar-matrix__risk" href="#/risks/{{ r.id }}" title="{{ r.title }}"{{<ar.attrs item={r} />}}>{{ r.id | replace(from="RSK-", to="") }}</a>{% endif %}{% endfor -%}
+              </td>
+              {%- endfor %}
+            </tr>
+          {%- endfor %}
+          </tbody>
+        </table>
+        <p class="ar-card__foot">Columns: impact. Rows: likelihood. Score = likelihood × impact.</p>
+      </section>
+
+      <section class="ar-card ar-card--flush" data-tour="risk-table">
+        <div class="ar-tablewrap"><table class="ar-table" aria-label="Risk register">
+          <thead><tr><th scope="col">Risk</th><th scope="col">AI system</th><th scope="col">Before measures</th><th scope="col">After measures</th><th scope="col">Measures</th><th scope="col">Owner</th></tr></thead>
+          <tbody>
+          {%- for r in gov.risks %}
+            <tr data-risk-row{% if r.likelihood * r.impact >= 8 %} data-high{% endif %}{{<ar.attrs item={r} />}}>
+              <td class="ar-cell-main"><a class="ar-rowlink" href="#/risks/{{ r.id }}"><span class="ar-id">{{ r.id }}</span>{{ r.title }}</a></td>
+              <td>{{<ar.ref id={r.system} inv={inv} gov={gov} />}}</td>
+              <td>{{<ar.level l={r.likelihood} i={r.impact} />}}</td>
+              <td>{{<ar.level l={r.residual_likelihood} i={r.residual_impact} />}}</td>
+              <td class="ar-refs">{% for x in r.measures %}{{<ar.ref id={x} inv={inv} gov={gov} />}}{% endfor %}</td>
+              <td>{{<ar.owner name={r.owner} roles={tk.roles} />}}</td>
+            </tr>
+          {%- endfor %}
+          </tbody>
+        </table></div>
+      </section>
+    </div>
+  </div></div>
+</section>
+
+{%- for r in gov.risks %}
+<section class="ar-view" data-view="risks/{{ r.id }}" data-title="{{ r.id }} · {{ r.short }}" data-record="{{ r.id }}" hidden>
+  <header class="ar-ph ar-ph--record" id="{{ r.id }}-head" data-reviewable data-label="{{ r.id }} {{ r.short }}" data-kind="Risk" data-href="#/risks/{{ r.id }}"{% if r.flags %} data-flags="{{<ar.keys map={r.flags} />}}"{% endif %}>
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><a href="#/risks">Risks</a><span aria-hidden="true">/</span><span>{{ r.id }}</span></p>
+      <div class="ar-ph__bar">
+        <div class="ar-ph__title"><span class="ar-ph__icon" aria-hidden="true">{{<ar.icon name="risks" />}}</span><h1 tabindex="-1">{{ r.title }}</h1>{{<ar.chip label={r.status} />}}<span class="ar-tags">{{<ar.flagtags item={r} clear={false} />}}</span></div>
+      </div>
+      <dl class="ar-meta">
+        <div><dt>Risk</dt><dd>{{ r.id }}</dd></div>
+        <div><dt>AI system</dt><dd>{{<ar.ref id={r.system} inv={inv} gov={gov} />}}</dd></div>
+        <div><dt>Owner</dt><dd>{{ r.owner }}</dd></div>
+        <div><dt>Before measures</dt><dd>{{<ar.level l={r.likelihood} i={r.impact} />}}</dd></div>
+        <div><dt>After measures</dt><dd>{{<ar.level l={r.residual_likelihood} i={r.residual_impact} />}}</dd></div>
+      </dl>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap ar-cols">
+    <section class="ar-card">
+      <h2 class="ar-card__title">Assessment</h2>
+      <dl class="ar-kv">
+        <dt>Likelihood</dt><dd>{{ r.likelihood }} of 4 before measures, {{ r.residual_likelihood }} after</dd>
+        <dt>Impact</dt><dd>{{ r.impact }} of 4 before measures, {{ r.residual_impact }} after</dd>
+        <dt>Residual risk</dt><dd>{{<ar.level l={r.residual_likelihood} i={r.residual_impact} />}} — accepted once the open measures are in place</dd>
+      </dl>
+    </section>
+    <section class="ar-card">
+      <h2 class="ar-card__title">Mitigating measures</h2>
+      <ul class="ar-reflist ar-reflist--rows">
+        {%- for mid in r.measures %}{% set x = ([item for item in gov.measures if item.id == mid] | first) %}
+        <li><a class="ar-ref" href="#/measures?at={{ x.id }}">{{ x.id }}</a><span class="ar-reflist__text">{{ x.title }}</span><span class="ar-reflist__side">{{<ar.chip label={x.status} />}}</span></li>
+        {%- endfor %}
+      </ul>
+    </section>
+    <section class="ar-card ar-card--flush ar-cols__wide">
+      <div class="ar-card__head"><h2 class="ar-card__title">Tasks</h2></div>
+      <div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">Task</th><th scope="col">Owner</th><th scope="col">Due</th><th scope="col">Priority</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+        {%- for t in tk.tasks | sort(attribute="due") %}{% if r.id in t.links %}
+          {{<ar.task_row t={t} inv={inv} gov={gov} roles={tk.roles} links={false} />}}
+        {%- endif %}{% endfor %}
+          <tr data-empty hidden><td colspan="5" class="ar-empty">No tasks.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+  </div></div>
+</section>
+{%- endfor %}
+
+<section class="ar-view" data-view="measures" data-title="Measures" hidden>
+  <header class="ar-ph">
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><span>Governance</span></p>
+      <div class="ar-ph__bar"><h1 tabindex="-1">Measures</h1></div>
+      <p class="ar-ph__lead">Controls and actions that mitigate the risks. A measure is only as good as its status: partially effective and planned measures leave risk open.</p>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+    <section class="ar-card ar-card--flush">
+      <div class="ar-tablewrap"><table class="ar-table" aria-label="Measures">
+        <thead><tr><th scope="col">Measure</th><th scope="col">Type</th><th scope="col">AI system</th><th scope="col">Owner</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead>
+        <tbody>
+        {%- for x in gov.measures %}
+          <tr id="{{ x.id }}" data-measure-row data-reviewable data-label="{{ x.id }} {{ x.title }}" data-kind="Measure" data-href="#/measures?at={{ x.id }}"{{<ar.attrs item={x} />}}>
+            <td class="ar-cell-main"><span class="ar-id">{{ x.id }}</span>{{ x.title }}<span class="ar-tags ar-tags--inline">{{<ar.flagtags item={x} clear={false} />}}</span></td>
+            <td>{{ x.kind }}</td>
+            <td>{{<ar.ref id={x.system} inv={inv} gov={gov} />}}</td>
+            <td>{{<ar.owner name={x.owner} roles={tk.roles} />}}</td>
+            <td>{{<ar.chip label={x.status} />}}</td>
+            <td>{{ x.note }}</td>
+          </tr>
+        {%- endfor %}
+        </tbody>
+      </table></div>
+    </section>
+  </div></div>
+</section>

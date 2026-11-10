@@ -1,0 +1,287 @@
+# Guided tour. Shown when the page opens, and from "Take the tour".
+#
+#   mode      modal (centred card), tooltip (explains a highlighted area, "Next")
+#             or hotspot (asks the visitor to click the highlighted element)
+#   route     view the step needs, e.g. "ai-systems/AIS-001" (without #/)
+#   scenario  simulated change that must be active for this step ("" = none)
+#   at        element id to scroll to on that view (optional)
+#   target    CSS selector of the highlighted element (tooltip and hotspot)
+#   hint      call to action shown on hotspot steps
+#   text      may contain simple HTML (<p>, <strong>, <ul>, <li>)
+
+[[steps]]
+mode = "modal"
+chapter = "Welcome"
+title = "Software that remembers why"
+text = "<p>Banco Salamanca is a fictional bank that uses AI for transaction monitoring and document search. Its AI policy, assessments, risks and tasks are all in this workspace.</p><p>This tour shows how governance software helps with three things:</p><ul><li><strong>Previous decisions</strong>: what was decided, why, and by whom</li><li><strong>Risk mitigations</strong>: which measures cover which risks</li><li><strong>Future risks</strong>: what a change touches, before it takes effect</li></ul><p>You can turn the tour off or restart it at any time, on each card or in the dark bar at the top.</p>"
+route = "dashboard"
+scenario = ""
+cta = "Start the tour"
+secondary = "Explore on my own"
+
+# ---- The case
+
+[[steps]]
+mode = "tooltip"
+chapter = "The case"
+title = "One bank, three uses of AI"
+text = "Cacsuma-Detect screens transactions for fraud and money laundering, Microsoft Copilot helps branch staff find documents, and several departments have asked to use AI agents. Everything here is derived from one case description."
+route = "dashboard"
+scenario = ""
+target = "[data-tour='kpis']"
+
+[[steps]]
+mode = "hotspot"
+chapter = "The case"
+title = "The AI systems register"
+text = "Every AI system the bank uses, or wants to use, is registered here."
+hint = "Click AI systems"
+route = "dashboard"
+scenario = ""
+target = "[data-nav='ai-systems']"
+
+# ---- Previous decisions
+
+[[steps]]
+mode = "tooltip"
+chapter = "Previous decisions"
+title = "Provider, owner, risk class"
+text = "Each system has a provider, a risk owner, a lifecycle stage and an EU AI Act risk class. The risk class is not a label someone typed in: it is the outcome of an assessment."
+route = "ai-systems"
+scenario = ""
+target = "[data-tour='systems-table']"
+
+[[steps]]
+mode = "hotspot"
+chapter = "Previous decisions"
+title = "Open Cacsuma-Detect"
+text = "The bank's main AI system: transaction monitoring, delivered by the vendor Cacsuma."
+hint = "Click Cacsuma-Detect"
+route = "ai-systems"
+scenario = ""
+target = "[data-tour='row-AIS-001'] .ar-rowlink"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Previous decisions"
+title = "The record holds the facts"
+text = "Provider, role, risk class and review dates sit at the top. Below them: purpose, data, model and human oversight. Every later decision builds on these facts."
+route = "ai-systems/AIS-001"
+scenario = ""
+target = "[data-tour='meta-AIS-001']"
+
+[[steps]]
+mode = "hotspot"
+chapter = "Previous decisions"
+title = "Where the risk class comes from"
+text = "Assessments, risks, tasks and policies are linked to the record."
+hint = "Click Assessments"
+route = "ai-systems/AIS-001"
+scenario = ""
+target = "[data-tour='tab-AIS-001-assessments']"
+
+[[steps]]
+mode = "hotspot"
+chapter = "Previous decisions"
+title = "The EU AI Act classification"
+text = "Version 2, approved after the AI module upgrade."
+hint = "Open ASM-001"
+route = "ai-systems/AIS-001/assessments"
+scenario = ""
+target = "[data-tour='asmrow-ASM-001'] .ar-rowlink"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Previous decisions"
+title = "Six steps, every time"
+text = "Intake, is it AI, role, risk class, risks and measures, review and approval. GRC tools use this kind of structure for EU AI Act evaluations, so every system is judged the same way."
+route = "assessments/ASM-001"
+scenario = ""
+target = "[data-tour='stepper-ASM-001']"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Previous decisions"
+title = "A decision, with its reasoning"
+text = "The bank decided the system is not high-risk because fraud detection is excepted in Annex III point 5(b). The reasoning is stored with the answer, so the next reviewer does not have to reconstruct it."
+route = "assessments/ASM-001"
+scenario = ""
+at = "a1-annex3"
+target = "[data-tour='q-a1-annex3']"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Previous decisions"
+title = "Who signed off, and when"
+text = "AI governance, privacy and IT security each approved, with a date and a note. Together with the answers, this is the audit trail of what was decided before."
+route = "assessments/ASM-001"
+scenario = ""
+at = "a1-approval"
+target = "[data-tour='approval-ASM-001']"
+
+# ---- Risk mitigations
+
+[[steps]]
+mode = "hotspot"
+chapter = "Risk mitigations"
+title = "From decisions to risks"
+text = "The assessment named four risks. They live in the risk register."
+hint = "Click Risks"
+route = "assessments/ASM-001"
+scenario = ""
+target = "[data-nav='risks']"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Risk mitigations"
+title = "Known risks, scored"
+text = "Each risk is scored for likelihood and impact. Bulk approve and unclear name matching come straight from the case: they are known control gaps."
+route = "risks"
+scenario = ""
+target = "[data-tour='risk-matrix']"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Risk mitigations"
+title = "Measures bring the risk down"
+text = "Every risk links to the measures that mitigate it. The second level is what remains once those measures work. A planned or partially effective measure leaves the risk open."
+route = "risks"
+scenario = ""
+target = "[data-tour='risk-table']"
+
+[[steps]]
+mode = "hotspot"
+chapter = "Risk mitigations"
+title = "The rules behind the measures"
+text = "The AI policy sets the rules these measures put into practice."
+hint = "Click Policies"
+route = "risks"
+scenario = ""
+target = "[data-nav='policies']"
+
+[[steps]]
+mode = "hotspot"
+chapter = "Risk mitigations"
+title = "Open the AI policy"
+text = "One of three governance documents: the AI policy, the compliance manual and the model review procedure."
+hint = "Click AI Policy"
+route = "policies"
+scenario = ""
+target = "[data-tour='row-POL-001'] .ar-rowlink"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Risk mitigations"
+title = "The case, turned into rules"
+text = "Each section turns part of the case into a rule. Human oversight, for example: a second compliance officer confirms every fraud report, and the known gaps (bulk approve, vendor-default thresholds, name matching) are written down and tracked as risks."
+route = "policies/POL-001"
+scenario = ""
+at = "pol1-oversight"
+target = "#pol1-oversight"
+
+[[steps]]
+mode = "hotspot"
+chapter = "Risk mitigations"
+title = "Follow-up work"
+text = "Open work on the policy and the measures behind it."
+hint = "Click Tasks"
+route = "policies/POL-001"
+scenario = ""
+target = "[data-tour='tab-POL-001-tasks']"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Risk mitigations"
+title = "Tasks keep mitigations moving"
+text = "Every task has an owner, a due date and a priority, and links back to the records it touches."
+route = "policies/POL-001/tasks"
+scenario = ""
+target = "[data-tour='subgrid-POL-001-tasks']"
+
+# ---- Future risks
+
+[[steps]]
+mode = "hotspot"
+chapter = "Future risks"
+title = "What if something changes?"
+text = "Section 5 of the policy defines review triggers."
+hint = "Click Review triggers"
+route = "policies/POL-001/tasks"
+scenario = ""
+target = "[data-nav='triggers']"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Future risks"
+title = "Four triggers watch for change"
+text = "The scenario mappings illustrate how a regulation change, a new data source, a model change or an organisational change could prompt a review. This prototype uses pre-authored flags to illustrate which linked records need attention; it does not infer dependencies automatically."
+route = "triggers"
+scenario = ""
+target = "[data-tour='triggers-table']"
+
+[[steps]]
+mode = "hotspot"
+chapter = "Future risks"
+title = "Simulate a change"
+text = "Let's fire one. You can try all five changes later."
+hint = "Click Simulate a change"
+route = "triggers"
+scenario = ""
+target = ".ar-demo [data-open-scenarios]"
+
+[[steps]]
+mode = "hotspot"
+chapter = "Future risks"
+title = "Customer segments in alert review"
+text = "The bank wants analysts to see a customer's segment, income band and account history when they review an alert."
+hint = "Click Customer segments in alert review"
+route = "triggers"
+scenario = ""
+target = ".ar-choice[data-scenario='segments']"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Future risks"
+title = "Exactly what the change touches"
+text = "The scenario highlights two answers in the classification, three policy sections, the system record and a retention measure. In this prototype, these impacts are pre-authored scenario mappings illustrating the intended review workflow, not automatically inferred dependencies."
+route = "triggers/CHG-033"
+scenario = "segments"
+target = "[data-tour='impact-segments']"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Future risks"
+title = "And what it leaves alone"
+text = "Copilot, the AI agents intake, the model review procedure and the other assessments stay as they are. The review is limited to what the change touches."
+route = "triggers/CHG-033"
+scenario = "segments"
+target = "[data-tour='clear-segments']"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Future risks"
+title = "Tasks, before anything goes live"
+text = "Three tasks, each with an owner and a due date. The most urgent one: answer the profiling question again."
+route = "triggers/CHG-033"
+scenario = "segments"
+target = "[data-tour='ctasks-segments']"
+
+[[steps]]
+mode = "tooltip"
+chapter = "Future risks"
+title = "A previous decision meets a new risk"
+text = "The earlier answer (it scores transactions, not customers) sits next to the new question: does segment data make this profiling? The reviewer starts from what was decided, not from scratch. Everything else is marked “No review needed”."
+route = "assessments/ASM-001"
+scenario = "segments"
+at = "a1-profiling"
+target = "[data-tour='q-a1-profiling']"
+
+[[steps]]
+mode = "modal"
+chapter = "That's the idea"
+title = "Decisions, mitigations, future risks"
+text = "<p>Governance software that remembers <strong>previous decisions</strong>, links <strong>risk mitigations</strong> to the risks they cover, and flags <strong>future risks</strong> as soon as something changes.</p><p>Try the other four changes with <strong>Simulate a change</strong>, or click through the workspace on your own. The <strong>Guided tour</strong> switch at the top brings the tour back.</p>"
+route = "assessments/ASM-001"
+scenario = "segments"
+cta = "Explore on my own"
+secondary = "Restart the tour"

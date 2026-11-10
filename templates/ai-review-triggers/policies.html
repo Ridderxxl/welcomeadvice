@@ -1,0 +1,110 @@
+<section class="ar-view" data-view="policies" data-title="Policies" hidden>
+  <header class="ar-ph">
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><span>Governance</span></p>
+      <div class="ar-ph__bar"><h1 tabindex="-1">Policies</h1></div>
+      <p class="ar-ph__lead">The rules the bank set for its AI systems. Each section links to the systems and tasks it governs.</p>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+    <section class="ar-card ar-card--flush" data-tour="policies-table">
+      <div class="ar-tablewrap"><table class="ar-table" aria-label="Policies">
+        <thead><tr><th scope="col">Policy</th><th scope="col">Type</th><th scope="col">Owner</th><th scope="col">Version</th><th scope="col">Status</th><th scope="col">AI systems</th><th scope="col">Next review</th></tr></thead>
+        <tbody>
+        {%- for p in gov.policies %}
+          <tr data-tour="row-{{ p.id }}">
+            <td class="ar-cell-main"><a class="ar-rowlink" href="#/policies/{{ p.id }}"><span class="ar-id">{{ p.id }}</span>{{ p.title }}</a></td>
+            <td>{{ p.kind }}</td>
+            <td>{{<ar.owner name={p.owner} roles={tk.roles} />}}</td>
+            <td>{{ p.version }}</td>
+            <td>{{<ar.status label={p.status} item={p} />}}</td>
+            <td class="ar-refs">{% for x in p.systems %}{{<ar.ref id={x} inv={inv} gov={gov} />}}{% endfor %}</td>
+            <td class="ar-nowrap">{{<ar.date d={p.next_review} />}}</td>
+          </tr>
+        {%- endfor %}
+        </tbody>
+      </table></div>
+    </section>
+  </div></div>
+</section>
+
+{%- for p in gov.policies %}
+<section class="ar-view" data-view="policies/{{ p.id }}" data-title="{{ p.title }}" data-record="{{ p.id }}" hidden>
+  <header class="ar-ph ar-ph--record" id="{{ p.id }}-head" data-reviewable data-label="{{ p.title }}" data-kind="Policy" data-href="#/policies/{{ p.id }}"{{<ar.attrs item={p} />}}>
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><a href="#/policies">Policies</a><span aria-hidden="true">/</span><span>{{ p.id }}</span></p>
+      <div class="ar-ph__bar">
+        <div class="ar-ph__title"><span class="ar-ph__icon" aria-hidden="true">{{<ar.icon name="policies" />}}</span><h1 tabindex="-1">{{ p.title }}</h1>{{<ar.status label={p.status} item={p} />}}<span class="ar-tags">{{<ar.flagtags item={p} clear={false} />}}</span></div>
+        <div class="ar-ph__actions" aria-hidden="true"><span class="ar-btn" title="Not part of this demo">Export</span><span class="ar-btn" title="Not part of this demo">Edit</span></div>
+      </div>
+      <dl class="ar-meta">
+        <div><dt>Record</dt><dd>{{ p.id }} · {{ p.kind }}</dd></div>
+        <div><dt>Owner</dt><dd>{{ p.owner }}</dd></div>
+        <div><dt>Version</dt><dd>{{ p.version }}</dd></div>
+        <div><dt>In force since</dt><dd>{{<ar.date d={p.effective} />}}</dd></div>
+        <div><dt>Next scheduled review</dt><dd>{{<ar.date d={p.next_review} />}}</dd></div>
+      </dl>
+      <nav class="ar-rtabs" aria-label="{{ p.title }}: record sections">
+        <a class="ar-rtab" href="#/policies/{{ p.id }}" data-tab-link="content">Content</a>
+        <a class="ar-rtab" href="#/policies/{{ p.id }}/systems" data-tab-link="systems" data-tour="tab-{{ p.id }}-systems">Linked AI systems<span class="ar-tab__count" data-count-rows="{{ p.id }}-systems"></span></a>
+        <a class="ar-rtab" href="#/policies/{{ p.id }}/tasks" data-tab-link="tasks" data-tour="tab-{{ p.id }}-tasks">Tasks<span class="ar-tab__count" data-count-rows="{{ p.id }}-tasks"></span></a>
+        <a class="ar-rtab" href="#/policies/{{ p.id }}/history" data-tab-link="history">History</a>
+      </nav>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+
+    <div class="ar-tabpanel" data-tab="content">
+      <div class="ar-secs" data-tour="sections-{{ p.id }}">
+      {%- for sec in p.sections %}
+        <section class="ar-sec" id="{{ sec.id }}" data-reviewable data-label="{{ p.title }} · §{{ sec.number }} {{ sec.title }}" data-kind="Policy section" data-href="#/policies/{{ p.id }}?at={{ sec.id }}"{{<ar.attrs item={sec} />}}>
+          <div class="ar-head">
+            <h2 class="ar-sec__title"><a class="ar-num" href="#/policies/{{ p.id }}?at={{ sec.id }}" aria-label="Section {{ sec.number }}">{{ sec.number }}</a>{{ sec.title }}</h2>
+            <span class="ar-tags">{{<ar.flagtags item={sec} />}}</span>
+          </div>
+          <dl class="ar-kv">
+            {%- for it in sec.items %}<dt>{{ it.label }}</dt><dd>{{ it.text }}</dd>{% endfor %}
+          </dl>
+        </section>
+      {%- endfor %}
+      </div>
+    </div>
+
+    <div class="ar-tabpanel" data-tab="systems" id="{{ p.id }}-systems" hidden>
+      <section class="ar-card ar-card--flush" data-tour="subgrid-{{ p.id }}-systems"><div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">AI system</th><th scope="col">Type</th><th scope="col">Lifecycle</th><th scope="col">Risk class</th><th scope="col">Status</th><th scope="col">Risk owner</th></tr></thead>
+        <tbody>
+        {%- for s in inv.systems %}{% if s.id in p.systems %}
+          <tr{{<ar.attrs item={s} />}}><td class="ar-cell-main"><a class="ar-rowlink" href="#/ai-systems/{{ s.id }}"><span class="ar-id">{{ s.id }}</span>{{ s.name }}</a></td><td>{{ s.kind }}</td><td>{{<ar.chip label={s.lifecycle} />}}</td><td>{{<ar.chip label={s.risk_class} />}}</td><td>{{<ar.status label={s.status} item={s} />}}</td><td>{{<ar.owner name={s.risk_owner} roles={tk.roles} />}}</td></tr>
+        {%- endif %}{% endfor %}
+          <tr data-empty hidden><td colspan="6" class="ar-empty">No linked AI systems.</td></tr>
+        </tbody>
+      </table></div></section>
+    </div>
+
+    <div class="ar-tabpanel" data-tab="tasks" id="{{ p.id }}-tasks" hidden>
+      <section class="ar-card ar-card--flush" data-tour="subgrid-{{ p.id }}-tasks"><div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">Task</th><th scope="col">Owner</th><th scope="col">Due</th><th scope="col">Priority</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+        {%- for t in tk.tasks | sort(attribute="due") %}{% if p.id in t.links %}
+          {{<ar.task_row t={t} inv={inv} gov={gov} roles={tk.roles} links={false} />}}
+        {%- endif %}{% endfor %}
+          <tr data-empty hidden><td colspan="5" class="ar-empty">No tasks.</td></tr>
+        </tbody>
+      </table></div></section>
+    </div>
+
+    <div class="ar-tabpanel" data-tab="history" hidden>
+      <section class="ar-card ar-card--flush"><div class="ar-tablewrap"><table class="ar-table">
+        <thead><tr><th scope="col">Version</th><th scope="col">In force from</th><th scope="col">Change</th></tr></thead>
+        <tbody>
+        {%- for h in p.history %}
+          <tr><td class="ar-cell-main">{{ h.version }}</td><td class="ar-nowrap">{{<ar.date d={h.date} />}}</td><td>{{ h.note }}</td></tr>
+        {%- endfor %}
+        </tbody>
+      </table></div></section>
+    </div>
+
+  </div></div>
+</section>
+{%- endfor %}

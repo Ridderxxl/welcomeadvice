@@ -1,0 +1,123 @@
+<section class="ar-view" data-view="assessments" data-title="Assessments" hidden>
+  <header class="ar-ph">
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><span>Governance</span></p>
+      <div class="ar-ph__bar"><h1 tabindex="-1">Assessments</h1></div>
+      <p class="ar-ph__lead">Every evaluation follows the same steps: intake, is it AI, role, risk class, risks &amp; measures, review &amp; approval. Each answer keeps its reasoning, so later reviews start from what was decided.</p>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+    <section class="ar-card ar-card--flush">
+      <div class="ar-tablewrap"><table class="ar-table" aria-label="Assessments">
+        <thead><tr><th scope="col">Assessment</th><th scope="col">Subject</th><th scope="col">Template</th><th scope="col">Status</th><th scope="col">Result</th><th scope="col">Updated</th></tr></thead>
+        <tbody>
+        {%- for a in gov.assessments %}
+          <tr data-asm-row{% if a.status != "Approved" %} data-needs-action{% endif %}{% if a.status_in %} data-action-in="{{<ar.keys map={a.status_in} />}}" data-flags="{{<ar.keys map={a.status_in} />}}"{% endif %}>
+            <td class="ar-cell-main"><a class="ar-rowlink" href="#/assessments/{{ a.id }}"><span class="ar-id">{{ a.id }}</span>{{ a.title }}</a></td>
+            <td>{{<ar.ref id={a.subject} inv={inv} gov={gov} />}}</td>
+            <td>{{ a.template }}</td>
+            <td>{{<ar.status label={a.status} item={a} />}}</td>
+            <td>{{ a.result }}</td>
+            <td class="ar-nowrap">{{<ar.date d={a.updated} />}}</td>
+          </tr>
+        {%- endfor %}
+        </tbody>
+      </table></div>
+    </section>
+  </div></div>
+</section>
+
+{%- for a in gov.assessments %}
+{%- if a.subject is starting_with(pat="AIS") %}{% set subj = ([item for item in inv.systems if item.id == a.subject] | first) %}{% else %}{% set subj = ([item for item in inv.vendors if item.id == a.subject] | first) %}{% endif %}
+<section class="ar-view" data-view="assessments/{{ a.id }}" data-title="{{ a.title }}{% if subj.name not in a.title %} · {{ subj.name }}{% endif %}" data-record="{{ a.id }}" hidden>
+  <header class="ar-ph ar-ph--record">
+    <div class="ar-wrap">
+      <p class="ar-crumbs"><a href="#/assessments">Assessments</a><span aria-hidden="true">/</span><span>{{ a.id }}</span></p>
+      <div class="ar-ph__bar">
+        <div class="ar-ph__title"><span class="ar-ph__icon" aria-hidden="true">{{<ar.icon name="assessments" />}}</span><h1 tabindex="-1">{{ a.title }} <span class="ar-ph__sub">{{ subj.name }}</span></h1>{{<ar.status label={a.status} item={a} />}}</div>
+        <div class="ar-ph__actions" aria-hidden="true"><span class="ar-btn" title="Not part of this demo">Export</span></div>
+      </div>
+      <dl class="ar-meta">
+        <div><dt>Assessment</dt><dd>{{ a.id }} · version {{ a.version }}</dd></div>
+        <div><dt>Template</dt><dd>{{ a.template }}</dd></div>
+        <div><dt>Subject</dt><dd>{{<ar.ref id={a.subject} inv={inv} gov={gov} />}}</dd></div>
+        <div><dt>Result</dt><dd>{{ a.result }}</dd></div>
+        <div><dt>Updated</dt><dd>{{<ar.date d={a.updated} />}}</dd></div>
+      </dl>
+    </div>
+  </header>
+  <div class="ar-pbody"><div class="ar-wrap">
+
+    {%- for s in sc.scenarios %}{% if a.status_in and s.id in a.status_in %}
+    <p class="ar-callout ar-callout--warn" data-only="{{ s.id }}" hidden>{{<ar.icon name="warn" cls="ar-ico ar-ico--sm" />}}<span><strong>Reopened by {{ s.change }}, {{ s.name }}.</strong> Only the flagged answers need a new review. Everything else carries over from version {{ a.version }}, with its reasoning and sign-offs. <a href="#/triggers/{{ s.change }}">Open the change</a></span></p>
+    {%- endif %}{% endfor %}
+    {%- if a.blocker %}
+    <p class="ar-callout">{{<ar.icon name="help" cls="ar-ico ar-ico--sm" />}}<span>{{ a.blocker }}</span></p>
+    {%- endif %}
+
+    <ol class="ar-stepper" data-tour="stepper-{{ a.id }}">
+    {%- for st in a.steps %}
+      {%- set_global stf = "" %}
+      {%- if st.flags %}{% for k, v in st.flags %}{% set_global stf = stf ~ " " ~ k %}{% endfor %}{% endif %}
+      {%- if st.questions %}{% for q in st.questions %}{% if q.flags %}{% for k, v in q.flags %}{% set_global stf = stf ~ " " ~ k %}{% endfor %}{% endif %}{% endfor %}{% endif %}
+      <li class="ar-stepper__item ar-stepper__item--{{ st.state }}"{% if stf | trim %} data-flags="{{ stf | trim }}"{% endif %}>
+        <a href="#/assessments/{{ a.id }}?at={{ st.id }}">
+          <span class="ar-stepper__dot" aria-hidden="true">{% if st.state == "done" %}{{<ar.icon name="check" cls="ar-ico ar-ico--xs" />}}{% else %}{{ loop.index }}{% endif %}</span>
+          <span class="ar-stepper__label">{{ st.title }}</span>
+          <span class="ar-stepper__state">{% if st.state == "done" %}{{ st.result | default(value="Completed") }}{% elif st.state == "current" %}In progress{% else %}Not started{% endif %}</span>
+        </a>
+      </li>
+    {%- endfor %}
+    </ol>
+
+    <div class="ar-steps">
+    {%- for st in a.steps %}
+      <section class="ar-step ar-step--{{ st.state }}" id="{{ st.id }}"{% if st.signoffs %} data-reviewable data-label="{{ a.id }} · {{ st.title }}" data-kind="Approval" data-href="#/assessments/{{ a.id }}?at={{ st.id }}"{{<ar.attrs item={st} />}}{% endif %}{% if st.signoffs %} data-tour="approval-{{ a.id }}"{% endif %}>
+        <div class="ar-head">
+          <h2 class="ar-step__title"><span class="ar-step__n">{{ loop.index }}</span>{{ st.title }}</h2>
+          <span class="ar-tags">{% if st.result %}<span class="ar-step__result">Result: <strong>{{ st.result }}</strong></span>{% endif %}{% if st.state == "done" %}{{<ar.chip label="Completed" />}}{% elif st.state == "current" %}{{<ar.chip label="In progress" />}}{% else %}{{<ar.chip label="Not started" />}}{% endif %}{% if st.signoffs %}{{<ar.flagtags item={st} />}}{% endif %}</span>
+        </div>
+        {%- if st.questions %}
+        <ul class="ar-qa">
+          {%- for q in st.questions %}
+          <li class="ar-qa__item" id="{{ q.id }}" data-reviewable data-label="{{ subj.name }} · {{ q.q }}" data-kind="Assessment answer" data-href="#/assessments/{{ a.id }}?at={{ q.id }}"{{<ar.attrs item={q} />}} data-tour="q-{{ q.id }}">
+            <div class="ar-head"><p class="ar-qa__q">{{ q.q }}</p><span class="ar-tags">{{<ar.flagtags item={q} />}}</span></div>
+            <p class="ar-qa__a"><span class="ar-answer">{{ q.a }}</span><span class="ar-qa__why">{{ q.why }}</span></p>
+          </li>
+          {%- endfor %}
+        </ul>
+        {%- endif %}
+        {%- if st.risks %}
+        <ul class="ar-reflist ar-reflist--rows">
+          {%- for rid in st.risks %}{% set r = ([item for item in gov.risks if item.id == rid] | first) %}
+          <li{{<ar.attrs item={r} />}}><a class="ar-ref" href="#/risks/{{ r.id }}">{{ r.id }}</a><span class="ar-reflist__text">{{ r.title }}</span><span class="ar-reflist__side">{{<ar.level l={r.likelihood} i={r.impact} />}}<span class="ar-arrow" aria-hidden="true">→</span><span class="ar-sr">after measures: </span>{{<ar.level l={r.residual_likelihood} i={r.residual_impact} />}}</span></li>
+          {%- endfor %}
+        </ul>
+        {%- endif %}
+        {%- if st.measures %}
+        <ul class="ar-reflist ar-reflist--rows">
+          {%- for mid in st.measures %}{% set x = ([item for item in gov.measures if item.id == mid] | first) %}
+          <li><a class="ar-ref" href="#/measures?at={{ x.id }}">{{ x.id }}</a><span class="ar-reflist__text">{{ x.title }}</span><span class="ar-reflist__side">{{<ar.chip label={x.status} />}}</span></li>
+          {%- endfor %}
+        </ul>
+        {%- endif %}
+        {%- if st.signoffs %}
+        <div class="ar-tablewrap"><table class="ar-table ar-table--compact ar-table--inset ar-signoffs">
+          <thead><tr><th scope="col">Team</th><th scope="col">Reviewer</th><th scope="col">Decision</th><th scope="col">Date</th><th scope="col">Note</th></tr></thead>
+          <tbody>
+          {%- for so in st.signoffs %}
+            <tr><td class="ar-cell-main">{{ so.team }}</td><td>{{<ar.owner name={so.who} roles={tk.roles} />}}</td><td>{{<ar.chip label={so.decision} />}}</td><td class="ar-nowrap">{% if so.decision == "Pending" %}<span class="ar-muted">Open</span>{% else %}{{<ar.date d={so.date} />}}{% endif %}</td><td>{{ so.note }}</td></tr>
+          {%- endfor %}
+          </tbody>
+        </table></div>
+        {%- endif %}
+        {%- if st.state == "pending" %}
+        <p class="ar-muted ar-step__empty">Not started yet.</p>
+        {%- endif %}
+      </section>
+    {%- endfor %}
+    </div>
+
+  </div></div>
+</section>
+{%- endfor %}
