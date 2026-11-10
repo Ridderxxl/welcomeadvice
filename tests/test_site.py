@@ -26,6 +26,24 @@ class Document(HTMLParser):
         self.text.append(data)
 
 class PersonalHomepageTests(unittest.TestCase):
+    def test_live_demo_is_prominent_and_scoped(self):
+        html = (ROOT / 'public/index.html').read_text()
+        nav = re.search(r'<nav\b[^>]*>(.*?)</nav>', html, re.S)
+        self.assertIsNotNone(nav)
+        self.assertRegex(nav.group(1), r'<a href=["\']?/demos/ai-review-triggers/["\']?>Demo</a>')
+        cards = re.findall(r'<a class=["\']?work-card["\']? href=["\']?([^"\' >]+)["\']?>(.*?)</a>', html, re.S)
+        self.assertGreaterEqual(len(cards), 2)
+        self.assertEqual(cards[0][0], '/demos/ai-review-triggers/')
+        for expected in ('Live demo', 'AI governance review triggers', 'fictional bank',
+                         'previous decisions', 'risk mitigations', 'simulated changes',
+                         'Try the live demo'):
+            self.assertIn(expected, cards[0][1])
+        self.assertEqual(cards[1][0], '/ai-regulation-crosswalk.html')
+        self.assertIn('AI Regulation Crosswalk', cards[1][1])
+        text = ' '.join(Document(html).text)
+        self.assertIn('personal click-through demo is now available', text)
+        self.assertIn('Regulation scenarios are simulated and impacts are pre-authored', text)
+
     def test_homepage_is_personal_and_credential_claim_is_limited_to_exam_pass(self):
         html = (ROOT / 'public/index.html').read_text()
         doc = Document(html)
