@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'content/demos/ai-review-triggers'
 OUTPUT = ROOT / 'public/demos/ai-review-triggers'
-PREVIEW_SHA256 = '5674e36761d5a6aab20bc07e23d18e5f8d79e6aef3a0d10dffd1df294c6b41e8'
+PREVIEW_SHA256 = '69a55a48c5d2fa6621cba66aee1186bc7d9399250ad77c5613bc539f7ad78b46'
 
 
 class DemoDocument(HTMLParser):
@@ -46,7 +46,7 @@ class DemoTests(unittest.TestCase):
     def test_config_matches_source(self):
         with (SOURCE / 'tour.toml').open('rb') as f:
             tour = tomllib.load(f)['steps']
-        self.assertEqual(self.config['product'], 'GRC Workspace')
+        self.assertEqual(self.config['product'], 'AI Review Demo')
         self.assertEqual(self.config['tour'], tour)
         self.assertEqual(self.config['scenarios'], [
             {k: scenario[k] for k in ('id', 'name', 'change')}
