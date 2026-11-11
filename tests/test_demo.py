@@ -5,7 +5,7 @@ import json
 import re
 import tomllib
 import unittest
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'content/demos/ai-review-triggers'
@@ -96,6 +96,15 @@ class DemoTests(unittest.TestCase):
         original = (ROOT / 'static/ai-review-triggers-preview.html').read_bytes()
         self.assertEqual(hashlib.sha256(original).hexdigest(), PREVIEW_SHA256)
         self.assertEqual((ROOT / 'public/ai-review-triggers-preview.html').read_bytes(), original)
+
+    def test_asset_versions_match_source_sha256(self):
+        for name, tag, attr in (('demo.css', 'link', 'href'), ('demo.js', 'script', 'src')):
+            with self.subTest(asset=name):
+                urls = [urlparse(a[attr]) for t, a in self.doc.tags if t == tag and attr in a
+                        and urlparse(a[attr]).path == '/demos/ai-review-triggers/' + name]
+                self.assertEqual(len(urls), 1)
+                self.assertEqual(parse_qs(urls[0].query).get('v'),
+                                 [hashlib.sha256((SOURCE / name).read_bytes()).hexdigest()])
 
 
 if __name__ == '__main__':
