@@ -1,12 +1,20 @@
-<section class="ar-view" data-view="dashboard" data-title="Dashboard" hidden>
+<section class="ar-view" data-view="dashboard" data-title="Simulation" hidden>
   <header class="ar-ph">
     <div class="ar-wrap">
-      <p class="ar-crumbs"><span>Overview</span></p>
-      <div class="ar-ph__bar"><h1 tabindex="-1">Dashboard</h1></div>
+      <p class="ar-crumbs"><span>AI Review Demo · Fictional bank</span></p>
+      <div class="ar-ph__bar"><h1 tabindex="-1">Simulate a change</h1></div>
+      <p class="ar-ph__lead">Choose a scenario to explore its review trigger and pre-authored impacts. This fictional demo does not monitor events or infer dependencies.</p>
     </div>
   </header>
   <div class="ar-pbody"><div class="ar-wrap">
 
+    <section class="ar-simulation" aria-label="Choose a scenario">
+      <ul class="ar-choices ar-simulation__choices">
+      {% for s in sc.scenarios %}
+        <li><button type="button" class="ar-choice" data-scenario="{{ s.id }}" data-change="{{ s.change }}"><span class="ar-choice__text"><span class="ar-choice__type">{{ s.type }}</span><span class="ar-choice__name">{{ s.name }}</span><span class="ar-choice__teaser">{{ s.teaser }}</span></span><span class="ar-choice__active" hidden>Active</span></button></li>
+      {% endfor %}
+      </ul>
+    </section>
     <section class="ar-card ar-about" data-tour="about">
       <div class="ar-about__main">
         <h2 class="ar-about__title" id="ar-about-title"><span class="ar-demo__pill">Demo</span>About this demo</h2>
@@ -23,6 +31,7 @@
       </ul>
     </section>
 
+    <h2>Workspace at a glance</h2>
     <div class="ar-kpis" data-tour="kpis">
       <a class="ar-kpi" href="#/ai-systems"><span class="ar-kpi__label">AI systems in use</span><span class="ar-kpi__value">{{ [item for item in inv.systems if item.lifecycle == "In use"] | length }}</span><span class="ar-kpi__sub">{{ [item for item in inv.systems if item.lifecycle == "Intake"] | length }} more in intake</span></a>
       <a class="ar-kpi" href="#/tasks"><span class="ar-kpi__label">Open tasks</span><span class="ar-kpi__value" data-count="open-tasks"></span><span class="ar-kpi__sub">across all records</span></a>
