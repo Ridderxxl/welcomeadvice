@@ -1,8 +1,8 @@
-<section class="ar-view" data-view="policies" data-title="Policies" hidden>
+<section class="ar-view" data-view="policies" data-title="Policy sections" hidden>
   <header class="ar-ph">
     <div class="ar-wrap">
       <p class="ar-crumbs"><span>Governance</span></p>
-      <div class="ar-ph__bar"><h1 tabindex="-1">Policies</h1></div>
+      <div class="ar-ph__bar"><h1 tabindex="-1">Policy sections</h1></div>
       <p class="ar-ph__lead">The rules the bank set for its AI systems. Each section links to the systems and tasks it governs.</p>
     </div>
   </header>
@@ -32,7 +32,7 @@
 <section class="ar-view" data-view="policies/{{ p.id }}" data-title="{{ p.title }}" data-record="{{ p.id }}" hidden>
   <header class="ar-ph ar-ph--record" id="{{ p.id }}-head" data-reviewable data-label="{{ p.title }}" data-kind="Policy" data-href="#/policies/{{ p.id }}"{{<ar.attrs item={p} />}}>
     <div class="ar-wrap">
-      <p class="ar-crumbs"><a href="#/policies">Policies</a><span aria-hidden="true">/</span><span>{{ p.id }}</span></p>
+      <p class="ar-crumbs"><a href="#/policies">Policy sections</a><span aria-hidden="true">/</span><span>{{ p.id }}</span></p>
       <div class="ar-ph__bar">
         <div class="ar-ph__title"><span class="ar-ph__icon" aria-hidden="true">{{<ar.icon name="policies" />}}</span><h1 tabindex="-1">{{ p.title }}</h1>{{<ar.status label={p.status} item={p} />}}<span class="ar-tags">{{<ar.flagtags item={p} clear={false} />}}</span></div>
         <div class="ar-ph__actions" aria-hidden="true"><span class="ar-btn" title="Not part of this demo">Export</span><span class="ar-btn" title="Not part of this demo">Edit</span></div>

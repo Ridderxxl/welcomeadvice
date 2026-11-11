@@ -1,4 +1,4 @@
-# Guided tour. Shown when the page opens, and from "Take the tour".
+# Guided tour. Started from "Take the tour" or the demo controls.
 #
 #   mode      modal (centred card), tooltip (explains a highlighted area, "Next")
 #             or hotspot (asks the visitor to click the highlighted element)
@@ -154,7 +154,7 @@ mode = "hotspot"
 chapter = "Risk mitigations"
 title = "The rules behind the measures"
 text = "The AI policy sets the rules these measures put into practice."
-hint = "Click Policies"
+hint = "Click Policy sections"
 route = "risks"
 scenario = ""
 target = "[data-nav='policies']"
@@ -237,7 +237,7 @@ text = "The bank wants analysts to see a customer's segment, income band and acc
 hint = "Click Customer segments in alert review"
 route = "triggers"
 scenario = ""
-target = ".ar-choice[data-scenario='segments']"
+target = "#ar-scenarios .ar-choice[data-scenario='segments']"
 
 [[steps]]
 mode = "tooltip"

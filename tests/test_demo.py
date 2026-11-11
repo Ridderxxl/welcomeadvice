@@ -2,6 +2,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 import hashlib
 import json
+import re
 import tomllib
 import unittest
 from urllib.parse import urlparse
@@ -9,7 +10,7 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'content/demos/ai-review-triggers'
 OUTPUT = ROOT / 'public/demos/ai-review-triggers'
-PREVIEW_SHA256 = '69a55a48c5d2fa6621cba66aee1186bc7d9399250ad77c5613bc539f7ad78b46'
+PREVIEW_SHA256 = '41719d8797171ece361a0ca88f30e6140ff1b2dd673ee7a89dd9a74a2d366eb8'
 
 
 class DemoDocument(HTMLParser):
@@ -58,7 +59,7 @@ class DemoTests(unittest.TestCase):
         tags = self.doc.tags
         choices = [attrs for tag, attrs in tags if tag == 'button' and 'data-scenario' in attrs]
         self.assertEqual([(a['data-scenario'], a['data-change']) for a in choices],
-                         [(s['id'], s['change']) for s in self.scenarios])
+                         [(s['id'], s['change']) for s in self.scenarios] * 2)
         views = {a['data-view'] for _, a in tags if 'data-view' in a}
         for view in ('dashboard', 'tasks', 'ai-systems', 'vendors', 'policies',
                      'assessments', 'risks', 'measures', 'regulations', 'triggers'):
@@ -68,6 +69,24 @@ class DemoTests(unittest.TestCase):
             self.assertTrue(any(scenario['id'] in a.get('data-flags', '').split() for _, a in tags))
             self.assertTrue(any(scenario['id'] in a.get('data-only', '').split() for _, a in tags))
         self.assertTrue(any(tag == 'svg' for tag, _ in tags))
+
+    def test_simulation_first_layout_and_preview(self):
+        built = (OUTPUT / 'index.html').read_text()
+        preview = (ROOT / 'static/ai-review-triggers-preview.html').read_text()
+        for html in (built, preview):
+            with self.subTest(document='preview' if html == preview else 'built'):
+                self.assertIn('aria-label="Main navigation"', html)
+                self.assertFalse(any('ar-side' in a.get('class', '').split() for _, a in DemoDocument(html).tags))
+                self.assertIn('>Policy sections<', html)
+                self.assertIn('>Change log<', html)
+                self.assertIn('change-log', {a.get('data-view') for _, a in DemoDocument(html).tags})
+                home = re.split(r'data-view=["\']?dashboard["\']?', html, maxsplit=1)[1]
+                home = re.split(r'data-tour=["\']?kpis["\']?', home, maxsplit=1)[0]
+                self.assertIn('Simulate a change', home)
+                self.assertEqual(len([a for tag, a in DemoDocument(home).tags if tag == 'button' and 'data-scenario' in a]), 5)
+                self.assertIn('pre-authored', home)
+                self.assertIn('AI Review Demo', html)
+        self.assertNotRegex(preview, r'<(?:script|link)\b[^>]*(?:src|href)="(?:https?:|/)', re.I)
 
     def test_assets_and_standalone_preview(self):
         for name, tag, attr in (('demo.css', 'link', 'href'), ('demo.js', 'script', 'src')):

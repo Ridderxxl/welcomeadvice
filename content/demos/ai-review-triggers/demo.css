@@ -4,22 +4,22 @@
    ===================================================================== */
 
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-body { margin: 0; background: #f4f6f8; }
+body { margin: 0; background: #f7f5f0; }
 
 .ar {
-  --bg: #f4f6f8;
+  --bg: #f7f5f0;
   --surface: #ffffff;
   --surface-2: #f8fafb;
-  --ink: #18212b;
+  --ink: #252b29;
   --ink-2: #3c4753;
   --ink-3: #5c6773;
   --line: #e1e5ea;
   --line-2: #cbd2d9;
-  --accent: #1d4f7c;
-  --accent-2: #163d60;
-  --accent-bg: #eaf1f8;
-  --accent-line: #c9dbec;
-  --focus: #5b8fc7;
+  --accent: #245747;
+  --accent-2: #183d32;
+  --accent-bg: #e8eee8;
+  --accent-line: #c9d8ce;
+  --focus: #245747;
   --tenant: #8c2f39;
   --warn: #8a4f00;
   --warn-line: #cf8a1f;
@@ -40,7 +40,7 @@ body { margin: 0; background: #f4f6f8; }
   --high: #9b1c1c;
   --high-bg: #fdecec;
   --high-line: #c0392b;
-  --demo-bg: #111a24;
+  --demo-bg: #245747;
   --demo-ink: #e6ebf0;
   --demo-ink-2: #a9b4c0;
   --demo-pill: #f5b54a;
@@ -542,4 +542,23 @@ tr[data-flags].is-flagged td:first-child { box-shadow: inset 3px 0 0 var(--warn-
 }
 @media (prefers-reduced-motion: reduce) {
   .ar *, .ar *::before, .ar *::after, .ar-tour *, .ar-dialog { animation: none !important; transition: none !important; }
+}
+
+/* Editorial, horizontal workspace navigation and simulation-first home. */
+.ar-app { display: block; }
+.ar-navigation.ar-top { position: static; height: auto; display: block; padding: 16px 28px 10px; background: var(--bg); }
+.ar-brand { padding: 0 0 12px; font: 700 21px Georgia, serif; color: var(--accent); }
+.ar-navigation__links { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.ar .ar-navigation .ar-nav__item { padding: 7px 10px; white-space: nowrap; }
+.ar-navigation .ar-nav__count { margin-left: 0; }
+.ar h1, .ar h2, .ar h3 { font-family: Georgia, serif; }
+.ar-ph h1 { font-size: clamp(30px, 4vw, 46px); font-weight: 400; }
+.ar-ph { background: var(--bg); }
+.ar-simulation__choices { grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)); gap: 12px; }
+.ar-simulation__choices li, .ar-simulation__choices .ar-choice { height: 100%; }
+.ar-simulation__choices .ar-choice { background: #fff; border-color: var(--accent-line); padding: 18px; }
+.ar-simulation__choices .ar-choice__name { font: 400 20px/1.25 Georgia, serif; }
+@media (max-width: 959.98px) {
+  .ar-navigation.ar-top { padding: 14px 16px; }
+  .ar-navigation__links { gap: 2px; }
 }

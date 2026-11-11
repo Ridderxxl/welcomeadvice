@@ -51,39 +51,24 @@
   </section>
 
   <div class="ar-app">
-    <div class="ar-scrim" id="ar-scrim" hidden></div>
-
-    {#- Module navigation -#}
-    <nav class="ar-side" id="ar-side" aria-label="Modules">
+    <nav class="ar-navigation ar-top" aria-label="Main navigation">
       <div class="ar-brand"><span class="ar-brand__mark">{{<ar.icon name="brand" />}}</span><span>{{ x.product_name }}</span></div>
-      <p class="ar-nav__group">Overview</p>
-      <a class="ar-nav__item" href="#/dashboard" data-nav="dashboard">{{<ar.icon name="dashboard" />}}Dashboard</a>
+      <div class="ar-navigation__links">
+      <a class="ar-nav__item" href="#/dashboard" data-nav="dashboard">Simulation</a>
+      <a class="ar-nav__item" href="#/triggers" data-nav="triggers">Review triggers</a>
+      <a class="ar-nav__item" href="#/change-log" data-nav="change-log">Change log</a>
       <a class="ar-nav__item" href="#/tasks" data-nav="tasks">{{<ar.icon name="tasks" />}}Tasks<span class="ar-nav__count" data-count="open-tasks"></span></a>
-      <p class="ar-nav__group">Inventory</p>
       <a class="ar-nav__item" href="#/ai-systems" data-nav="ai-systems">{{<ar.icon name="systems" />}}AI systems<span class="ar-nav__count">{{ inv.systems | length }}</span></a>
       <a class="ar-nav__item" href="#/vendors" data-nav="vendors">{{<ar.icon name="vendors" />}}Vendors<span class="ar-nav__count">{{ inv.vendors | length }}</span></a>
-      <p class="ar-nav__group">Governance</p>
-      <a class="ar-nav__item" href="#/policies" data-nav="policies">{{<ar.icon name="policies" />}}Policies<span class="ar-nav__count">{{ gov.policies | length }}</span></a>
+      <a class="ar-nav__item" href="#/policies" data-nav="policies">Policy sections</a>
       <a class="ar-nav__item" href="#/assessments" data-nav="assessments">{{<ar.icon name="assessments" />}}Assessments<span class="ar-nav__count">{{ gov.assessments | length }}</span></a>
       <a class="ar-nav__item" href="#/risks" data-nav="risks">{{<ar.icon name="risks" />}}Risks<span class="ar-nav__count" data-count="risks"></span></a>
       <a class="ar-nav__item" href="#/measures" data-nav="measures">{{<ar.icon name="measures" />}}Measures<span class="ar-nav__count" data-count="measures"></span></a>
       <a class="ar-nav__item" href="#/regulations" data-nav="regulations">{{<ar.icon name="regulations" />}}Regulations<span class="ar-nav__count">{{ gov.regulations | length }}</span></a>
-      <a class="ar-nav__item" href="#/triggers" data-nav="triggers">{{<ar.icon name="triggers" />}}Review triggers<span class="ar-nav__count ar-nav__count--alert" data-count="changes" hidden>1</span></a>
-      <p class="ar-nav__group">Reporting</p>
-      <span class="ar-nav__item is-disabled" title="Not part of this demo">{{<ar.icon name="reports" />}}Reports</span>
-      <div class="ar-side__foot"><span class="ar-nav__item is-disabled" title="Not part of this demo">{{<ar.icon name="settings" />}}Settings</span></div>
+      </div>
     </nav>
 
     <div class="ar-main">
-      <header class="ar-top">
-        <button type="button" class="ar-iconbtn ar-menubtn" id="ar-menu" aria-controls="ar-side" aria-expanded="false" aria-label="Open navigation">{{<ar.icon name="menu" />}}</button>
-        <span class="ar-tenant" title="Not part of this demo"><span class="ar-tenant__logo" aria-hidden="true">{{ x.tenant_initials }}</span><span class="ar-tenant__name">{{ x.tenant }}</span>{{<ar.icon name="chevron" cls="ar-ico ar-ico--sm" />}}</span>
-        <span class="ar-search" aria-hidden="true" title="Not part of this demo">{{<ar.icon name="search" cls="ar-ico ar-ico--sm" />}}Search records, AI systems, regulations…</span>
-        <span class="ar-top__spacer"></span>
-        <a class="ar-iconbtn" href="#/dashboard" aria-label="Notifications">{{<ar.icon name="bell" />}}<span class="ar-iconbtn__badge" data-bell hidden>1</span></a>
-        <span class="ar-iconbtn" aria-hidden="true" title="Not part of this demo">{{<ar.icon name="help" />}}</span>
-        <span class="ar-avatar" aria-hidden="true">{{ x.user_initials }}</span>
-      </header>
 
       {#- Alert for the simulated change: shown on every view -#}
       <div class="ar-alertbar" data-only="{% for s in sc.scenarios %}{{ s.id }} {% endfor %}" hidden>

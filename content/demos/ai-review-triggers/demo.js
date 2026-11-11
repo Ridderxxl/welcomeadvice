@@ -377,29 +377,7 @@
   if (window.ResizeObserver) { new ResizeObserver(measureBar).observe(demoBar); }
   window.addEventListener('resize', measureBar);
 
-  /* ---------------------------------------------------------------- Navigation drawer (narrow screens) */
-  var menuButton = $('#ar-menu');
-  var scrim = $('#ar-scrim');
-  function openNav() {
-    root.classList.add('is-nav-open');
-    menuButton.setAttribute('aria-expanded', 'true');
-    scrim.hidden = false;
-    var first = $('.ar-side .ar-nav__item');
-    if (first) { first.focus(); }
-  }
-  function closeNav() {
-    if (!root.classList.contains('is-nav-open')) { return; }
-    root.classList.remove('is-nav-open');
-    menuButton.setAttribute('aria-expanded', 'false');
-    scrim.hidden = true;
-  }
-  menuButton.addEventListener('click', function () {
-    if (root.classList.contains('is-nav-open')) { closeNav(); menuButton.focus(); } else { openNav(); }
-  });
-  scrim.addEventListener('click', closeNav);
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && root.classList.contains('is-nav-open')) { closeNav(); menuButton.focus(); }
-  });
+  function closeNav() { /* Navigation stays visible at every width. */ }
 
   /* ---------------------------------------------------------------- Guided tour
      An overlay over the whole page. The switch in the demo bar turns it off and
@@ -426,7 +404,7 @@
       var want = stepRoute(step);
       return r.parts.join('/') === want.parts.join('/') && (r.s || null) === want.s;
     }
-    function inDialog(step) { return !!step.target && step.target.indexOf('.ar-choice') === 0; }
+    function inDialog(step) { return !!step.target && step.target.indexOf('#ar-scenarios ') === 0; }
 
     function build() {
       ui = {};
@@ -758,7 +736,5 @@
 
   /* ---------------------------------------------------------------- Start */
   window.addEventListener('hashchange', route);
-  var firstVisit = !location.hash || location.hash === '#' || location.hash === '#/';
   route();
-  if (firstVisit && (CFG.tour || []).length) { tour.restart(); }
 })();
