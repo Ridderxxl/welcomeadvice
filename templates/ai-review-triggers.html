@@ -26,8 +26,8 @@
 {%- if page.description %}
 <meta name="description" content="{{ page.description }}">
 {%- endif %}
-<link rel="stylesheet" href="{{ page.permalink | safe }}demo.css">
-<script src="{{ page.permalink | safe }}demo.js" defer></script>
+<link rel="stylesheet" href="{{ page.permalink | safe }}demo.css?v={{ get_hash(path="content/" ~ data_dir ~ "demo.css", sha_type=256, base64=false) }}">
+<script src="{{ page.permalink | safe }}demo.js?v={{ get_hash(path="content/" ~ data_dir ~ "demo.js", sha_type=256, base64=false) }}" defer></script>
 </head>
 <body>
 <div class="ar" id="ar-demo">
