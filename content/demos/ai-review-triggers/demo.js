@@ -6,7 +6,10 @@
    Scenario elements carry data-only / data-hide-in / data-flags; the active
             simulated change switches them. Change records list everything
             flagged, plus the records that need no review.
-   Tour     guided tour defined in tour.toml (passed in #ar-config).
+   Tour     guided tour defined in tour.toml (passed in #ar-config). Steps can
+            be limited to one device class (device = "phone" | "desktop").
+   Phone    below 600px: bottom bar and sheets (built here from the top
+            navigation), tables shown as cards, long sections folded.
    ===================================================================== */
 (function () {
   'use strict';
@@ -47,6 +50,142 @@
   var effectiveDays = Math.round((effective - TODAY) / 86400000);
   $$('[data-effective]').forEach(function (t) { t.textContent = fmt(effective); t.setAttribute('datetime', iso(effective)); });
   $$('[data-days-to-effective]').forEach(function (t) { t.textContent = 'in ' + effectiveDays + ' days'; });
+
+  /* ---------------------------------------------------------------- Phone navigation
+     Below 600px the module links move into a bar at the bottom of the screen,
+     with two sheets: Records (the modules) and More (tour, about, reset).
+     While the tour runs the bar is dimmed; the tour card has its own controls.
+     Both are built here from the top navigation, so the two always match.
+     demo.css shows them on phones only. */
+  var phoneQuery = window.matchMedia('(max-width: 599.98px)');
+  var ICONS = {
+    simulate: '<path d="M7.5 5v14l11-7z"/>',
+    changes: '<path d="M13 2.5 4.5 13.5h6.5l-1 8 8.5-11h-6.5z"/>',
+    tasks: '<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="m8 12.5 3 3 5-6"/>',
+    records: '<path d="m12 3.5 8.5 4.5-8.5 4.5L3.5 8z"/><path d="m3.5 12 8.5 4.5 8.5-4.5M3.5 16l8.5 4.5 8.5-4.5"/>',
+    more: '<path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="3"/>',
+    close: '<path d="M6 6l12 12M18 6 6 18"/>',
+    fold: '<path d="m7 10 5 5 5-5"/>'
+  };
+  function icon(name, cls) {
+    return '<svg class="' + (cls || 'ar-ico') + '" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + ICONS[name] + '</svg>';
+  }
+  // Which bottom-bar item is marked for a module; every other module sits under Records.
+  var TAB_OF = { dashboard: 'simulate', triggers: 'changes', tasks: 'tasks' };
+  var RECORD_MODULES = ['ai-systems', 'vendors', 'policies', 'assessments', 'risks', 'measures', 'regulations', 'change-log'];
+
+  var tabbar = document.createElement('nav');
+  tabbar.className = 'ar-tabbar';
+  tabbar.setAttribute('aria-label', 'Quick navigation');
+  tabbar.innerHTML =
+    '<a class="ar-tabbar__item" href="#/dashboard" data-tab="simulate">' + icon('simulate') + '<span>Simulate</span></a>' +
+    '<a class="ar-tabbar__item" href="#/triggers" data-tab="changes">' + icon('changes') + '<span>Changes</span><span class="ar-tabbar__badge" data-count="changes" hidden>1</span></a>' +
+    '<a class="ar-tabbar__item" href="#/tasks" data-tab="tasks">' + icon('tasks') + '<span>Tasks</span><span class="ar-tabbar__badge ar-tabbar__badge--muted" data-count="open-tasks"></span></a>' +
+    '<button type="button" class="ar-tabbar__item" data-tab="records" data-sheet="records" aria-haspopup="dialog">' + icon('records') + '<span>Records</span></button>' +
+    '<button type="button" class="ar-tabbar__item" data-tab="more" data-sheet="more" aria-haspopup="dialog">' + icon('more') + '<span>More</span></button>';
+  root.appendChild(tabbar);
+
+  var sheet = document.createElement('dialog');
+  sheet.className = 'ar-sheet';
+  sheet.setAttribute('aria-labelledby', 'ar-sheet-title');
+  sheet.innerHTML =
+    '<div class="ar-sheet__head"><h2 id="ar-sheet-title"></h2>' +
+    '<button type="button" class="ar-iconbtn" data-close-sheet aria-label="Close">' + icon('close') + '</button></div>' +
+    '<div class="ar-sheet__panel" data-panel="records"><ul class="ar-sheet__list"></ul></div>' +
+    '<div class="ar-sheet__panel" data-panel="more"><p class="ar-sheet__note"></p><ul class="ar-sheet__list">' +
+    '<li><button type="button" class="ar-sheet__item" data-more="tour">Take the guided tour</button></li>' +
+    '<li><a class="ar-sheet__item" href="#/dashboard?at=ar-about-title">About this demo and its limits</a></li>' +
+    '<li><button type="button" class="ar-sheet__item" data-more="reset" hidden>Reset the simulated change</button></li>' +
+    '</ul></div>';
+  root.appendChild(sheet);
+  (function () {
+    var list = sheet.querySelector('[data-panel="records"] .ar-sheet__list');
+    RECORD_MODULES.forEach(function (module) {
+      var source = $('.ar-navigation [data-nav="' + module + '"]');
+      if (!source) { return; }
+      var link = source.cloneNode(true);
+      link.className = 'ar-sheet__item';
+      var li = document.createElement('li');
+      li.appendChild(link);
+      list.appendChild(li);
+    });
+    var note = $('.ar-demo__note');
+    sheet.querySelector('.ar-sheet__note').textContent = note ? note.textContent : '';
+  })();
+  var SHEET_TITLES = { records: 'Records', more: 'More' };
+  function openSheet(name) {
+    if (!SHEET_TITLES[name]) { return; }
+    sheet.querySelector('#ar-sheet-title').textContent = SHEET_TITLES[name];
+    $$('.ar-sheet__panel', sheet).forEach(function (p) { p.hidden = p.getAttribute('data-panel') !== name; });
+    sheet.querySelector('[data-more="reset"]').hidden = !state.scenario;
+    if (sheet.open) { return; }
+    if (typeof sheet.showModal === 'function') { sheet.showModal(); } else { sheet.setAttribute('open', ''); }
+  }
+  function closeSheet() {
+    if (!sheet.open) { return; }
+    if (typeof sheet.close === 'function') { sheet.close(); } else { sheet.removeAttribute('open'); }
+  }
+  sheet.addEventListener('click', function (e) { if (e.target === sheet) { closeSheet(); } });
+
+  /* ---------------------------------------------------------------- Tables as cards (phones)
+     demo.css stacks each table row into a card below 600px. Every cell carries
+     its column heading, and explicit roles keep the table readable for screen
+     readers once the cells are no longer displayed as a table. */
+  function labelTables() {
+    $$('table.ar-table').forEach(function (table) {
+      var heads = $$('thead th', table).map(function (th) { return th.textContent.trim(); });
+      if (!heads.length) { return; }
+      table.setAttribute('role', 'table');
+      $$('thead, tbody', table).forEach(function (group) { group.setAttribute('role', 'rowgroup'); });
+      $$('tr', table).forEach(function (tr) {
+        tr.setAttribute('role', 'row');
+        Array.prototype.forEach.call(tr.children, function (cell, i) {
+          if (cell.tagName === 'TH') { cell.setAttribute('role', 'columnheader'); return; }
+          cell.setAttribute('role', 'cell');
+          if (cell.hasAttribute('colspan')) { return; }
+          if (i > 0 && heads[i]) { cell.setAttribute('data-label', heads[i]); }
+          cell.classList.toggle('is-blank', !cell.textContent.trim() && !cell.querySelector('svg'));
+        });
+      });
+    });
+  }
+
+  /* ---------------------------------------------------------------- Folding sections (phones)
+     Assessment steps and policy sections get a fold button. On phones they start
+     folded unless they are flagged, in progress, or the place a link points to. */
+  var foldables = $$('.ar-step, .ar-sec');
+  foldables.forEach(function (box) {
+    var head = box.querySelector('.ar-head');
+    var title = head && head.querySelector('h2, h3');
+    if (!head || !title) { return; }
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'ar-fold';
+    button.setAttribute('aria-expanded', 'true');
+    button.setAttribute('aria-label', 'Details: ' + title.textContent.trim());
+    button.innerHTML = icon('fold', 'ar-ico ar-ico--sm');
+    head.appendChild(button);
+  });
+  function setFold(box, collapsed) {
+    var button = box.querySelector('.ar-fold');
+    if (!button) { return; }
+    box.classList.toggle('is-collapsed', collapsed);
+    button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  }
+  function applyFolds(view, at) {
+    var target = at ? document.getElementById(at) : null;
+    foldables.forEach(function (box) {
+      if (!view.contains(box)) { return; }
+      var required = !phoneQuery.matches || box.classList.contains('is-flagged') || !!box.querySelector('.is-flagged') ||
+        (target && (box === target || box.contains(target)));
+      if (box.hasAttribute('data-fold-user') && !required) { return; }
+      setFold(box, !(required || box.classList.contains('ar-step--current')));
+    });
+  }
+  function unfoldFor(el) {
+    var box = el && el.closest('.ar-step, .ar-sec');
+    if (box) { setFold(box, false); }
+  }
 
   /* ---------------------------------------------------------------- Links carry the scenario */
   var links = $$('a[href^="#/"]');
@@ -104,8 +243,10 @@
     state.viewKey = key;
     state.tab = tab;
     setNav(r.parts[0]);
+    root.setAttribute('data-route', key);
     document.title = view.getAttribute('data-title') + ' · ' + CFG.product;
-    closeNav();
+    closeSheet();
+    applyFolds(view, r.at);
 
     var target = r.at ? document.getElementById(r.at) : null;
     if (target) { target.scrollIntoView({ block: 'start' }); }
@@ -161,6 +302,14 @@
       a.classList.toggle('is-active', on);
       if (on) { a.setAttribute('aria-current', 'page'); } else { a.removeAttribute('aria-current'); }
     });
+    var tab = TAB_OF[module] || 'records';
+    $$('.ar-tabbar__item').forEach(function (item) {
+      var on = item.getAttribute('data-tab') === tab;
+      item.classList.toggle('is-active', on);
+      if (item.tagName === 'A') {
+        if (on) { item.setAttribute('aria-current', 'page'); } else { item.removeAttribute('aria-current'); }
+      }
+    });
   }
 
   /* ---------------------------------------------------------------- Scenarios */
@@ -187,6 +336,7 @@
     updateLinks(s);
     updateCounts();
     buildImpact();
+    labelTables();
     updateDemoBar();
   }
 
@@ -348,6 +498,12 @@
   });
 
   root.addEventListener('click', function (e) {
+    var sheetLink = e.target.closest('.ar-sheet a[href^="#/"]');
+    if (sheetLink) {
+      closeSheet();
+      if (sheetLink.hash === location.hash) { route(); }
+      return;
+    }
     var opener = e.target.closest('[data-open-scenarios]');
     if (opener) {
       // Outside the tour's own "Simulate a change" step, the visitor takes over: the tour switches off.
@@ -358,7 +514,24 @@
     var choice = e.target.closest('.ar-choice');
     if (choice) { choose(choice.getAttribute('data-scenario')); return; }
     if (e.target.closest('[data-close-dialog]')) { closeScenarios(); return; }
-    if (e.target.closest('[data-start-tour]')) { tour.restart(); }
+    if (e.target.closest('[data-start-tour]')) { tour.restart(); return; }
+    var sheetOpener = e.target.closest('[data-sheet]');
+    if (sheetOpener) { openSheet(sheetOpener.getAttribute('data-sheet')); return; }
+    if (e.target.closest('[data-close-sheet]')) { closeSheet(); return; }
+    var more = e.target.closest('[data-more]');
+    if (more) {
+      var action = more.getAttribute('data-more');
+      closeSheet();
+      if (action === 'tour') { tour.restart(); }
+      else if (action === 'reset') { $('#ar-reset').click(); }
+      return;
+    }
+    var fold = e.target.closest('.ar-fold');
+    if (fold) {
+      var box = fold.closest('.ar-step, .ar-sec');
+      box.setAttribute('data-fold-user', '');
+      setFold(box, !box.classList.contains('is-collapsed'));
+    }
   });
 
   /* ---------------------------------------------------------------- Tour controls in the demo bar */
@@ -377,16 +550,18 @@
   if (window.ResizeObserver) { new ResizeObserver(measureBar).observe(demoBar); }
   window.addEventListener('resize', measureBar);
 
-  function closeNav() { /* Navigation stays visible at every width. */ }
 
   /* ---------------------------------------------------------------- Guided tour
      An overlay over the whole page. The switch in the demo bar turns it off and
      on again (it resumes where it was); Restart starts from the welcome card.
+     On phones the same controls are under More in the bottom bar.
      Steps come from tour.toml: modal (centred card), tooltip (highlight + Next)
      and hotspot (the visitor clicks the highlighted element, or presses Next). */
   var tour = (function () {
-    var steps = CFG.tour || [];
-    var last = steps.length - 1;
+    var allSteps = CFG.tour || [];
+    var steps = [];
+    var last = -1;
+    var device = '';
     var index = -1;
     var resumeAt = 0;
     var ui = null;
@@ -403,6 +578,13 @@
       var r = parse();
       var want = stepRoute(step);
       return r.parts.join('/') === want.parts.join('/') && (r.s || null) === want.s;
+    }
+    /* A step with device = "phone" or "desktop" belongs to that tour only; steps without it are in both. */
+    function currentDevice() { return narrowQuery.matches ? 'phone' : 'desktop'; }
+    function pickSteps() {
+      device = currentDevice();
+      steps = allSteps.filter(function (step) { return !step.device || step.device === device; });
+      last = steps.length - 1;
     }
     function inDialog(step) { return !!step.target && step.target.indexOf('#ar-scenarios ') === 0; }
 
@@ -455,7 +637,7 @@
     /* ---- on, off, restart */
     function show() {
       if (!ui) { build(); }
-      closeNav();
+      closeSheet();
       api.active = true;
       ui.layer.hidden = false;
       root.classList.add('is-touring');
@@ -463,10 +645,14 @@
     }
     function on() {
       if (api.active) { return; }
+      if (device !== currentDevice()) { pickSteps(); resumeAt = 0; }
+      if (!steps.length) { return; }
       show();
       go(resumeAt);
     }
     function restart() {
+      pickSteps();
+      if (!steps.length) { return; }
       closeScenarios();
       show();
       go(0);
@@ -486,8 +672,9 @@
       if (!location.hash || location.hash === '#' || location.hash === '#/') {
         try { history.replaceState(null, '', '#/dashboard'); } catch (err) { /* not available */ }
       }
-      announce('Guided tour turned off. Use the switch in the demo bar to turn it on again.');
-      if (moveFocus) { tourToggle.focus({ preventScroll: true }); }
+      var onPhone = phoneQuery.matches;
+      announce('Guided tour turned off. ' + (onPhone ? 'You can start it again under More.' : 'Use the switch in the demo bar to turn it on again.'));
+      if (moveFocus) { (onPhone ? $('.ar-tabbar [data-tab="more"]') : tourToggle).focus({ preventScroll: true }); }
     }
 
     /* ---- moving through the steps */
@@ -560,6 +747,7 @@
     function draw() {
       var step = steps[index];
       if (inDialog(step)) { openScenarios(); }
+      if (step.target && step.mode !== 'modal') { unfoldFor(root.querySelector(step.target)); }
       var el = targetOf(step);
       renderCard(step, !!el);
       root.style.setProperty('--tour-card-h', ui.card.offsetHeight + 'px');
@@ -582,7 +770,7 @@
       var html = '<div class="ar-tour__head"><p class="ar-tour__chapter">' + esc(step.chapter || '') + '</p>';
       if (numbered) {
         html += '<div class="ar-tour__tools">' +
-          '<button type="button" class="ar-tour__tool" data-tour-action="restart">' + RESTART_ICON + 'Restart</button>' +
+          '<button type="button" class="ar-tour__tool" data-tour-action="restart">' + RESTART_ICON + 'Start again</button>' +
           '<button type="button" class="ar-tour__tool" data-tour-action="off">Turn off</button></div>';
       }
       html += '</div>';
@@ -602,8 +790,8 @@
       } else {
         var first = index === 0;
         html += '<span></span><div class="ar-tour__actions">';
-        html += '<button type="button" class="ar-btn" data-tour-action="' + (first ? 'off' : 'restart') + '">' + esc(step.secondary || (first ? 'Explore on my own' : 'Restart the tour')) + '</button>';
-        html += '<button type="button" class="ar-btn ar-btn--primary" data-tour-action="' + (first ? 'next' : 'off') + '">' + esc(step.cta || (first ? 'Start the tour' : 'Done')) + '</button></div>';
+        html += '<button type="button" class="ar-btn" data-tour-action="' + (first ? 'off' : 'restart') + '">' + esc(step.secondary || (first ? 'Skip the tour' : 'Start again')) + '</button>';
+        html += '<button type="button" class="ar-btn ar-btn--primary" data-tour-action="' + (first ? 'next' : 'off') + '">' + esc(step.cta || (first ? 'Begin' : 'Done')) + '</button></div>';
       }
       html += '</div>';
       ui.card.innerHTML = html;
@@ -622,7 +810,7 @@
       return h;
     }
     function inPinned(el) {
-      var box = el.closest('.ar-demo, .ar-side, .ar-top, .ar-dialog');
+      var box = el.closest('.ar-demo, .ar-top, .ar-dialog');
       if (!box) { return false; }
       var p = window.getComputedStyle(box).position;
       return p === 'sticky' || p === 'fixed';
@@ -644,7 +832,7 @@
       var top = pinnedTop() + 12;
       var bottom = vh - 12;
       var cardH = ui.card.offsetHeight + 14;
-      if (narrowQuery.matches) { bottom = vh - ui.card.offsetHeight - 24; cardH = 0; }
+      if (narrowQuery.matches) { bottom = ui.card.getBoundingClientRect().top - 12; cardH = 0; } // card is docked above the bottom bar
       var room = bottom - top;
       var delta;
       if (r.height + cardH <= room) { delta = r.top - (top + (room - r.height - cardH) / 2); }
@@ -709,8 +897,7 @@
       var left = x1 - gap - cw >= 12;
       var cx = Math.min(Math.max(12, x1), vw - cw - 12);
       var cy;
-      if (el.closest('.ar-side') && right) { cx = x2 + gap; cy = clamp(y1 - 8, safeTop, vh - ch - 12); }
-      else if (below) { cy = y2 + gap; }
+      if (below) { cy = y2 + gap; }
       else if (above) { cy = y1 - gap - ch; }
       else if (right) { cx = x2 + gap; cy = clamp(y1, safeTop, vh - ch - 12); }
       else if (left) { cx = x1 - gap - cw; cy = clamp(y1, safeTop, vh - ch - 12); }
