@@ -20,3 +20,5 @@ demo_note = "Fictional demonstration · not legal advice. No real records are ch
 +++
 
 Banco Salamanca is a fictional bank. This is its AI governance workspace: AI systems, policies, assessments, risks and tasks, all built from one case description. Click through freely; nothing can be changed. Then press **Simulate a change** at the top and pick one of five events, such as a new data source or a model update. You will see which review trigger fires, which records it flags, which it leaves alone, and which tasks it creates.
+
+**Limits of this demo.** What each change touches is written into the scenario by hand; nothing is monitored or inferred. The regulation change is invented, not a current legal update. The classifications illustrate the case and are not legal advice. Nothing you do here is saved.

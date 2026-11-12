@@ -10,7 +10,7 @@ from urllib.parse import parse_qs, urlparse
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'content/demos/ai-review-triggers'
 OUTPUT = ROOT / 'public/demos/ai-review-triggers'
-PREVIEW_SHA256 = '41719d8797171ece361a0ca88f30e6140ff1b2dd673ee7a89dd9a74a2d366eb8'
+PREVIEW_SHA256 = '5a76a038b1f87b604162cd681dc542f6841f49b721ae43145163872963bb7435'
 
 
 class DemoDocument(HTMLParser):
@@ -88,6 +88,60 @@ class DemoTests(unittest.TestCase):
                 self.assertIn('AI Review Demo', html)
         self.assertNotRegex(preview, r'<(?:script|link)\b[^>]*(?:src|href)="(?:https?:|/)', re.I)
 
+    def test_tour_has_a_phone_and_a_desktop_path(self):
+        with (SOURCE / 'tour.toml').open('rb') as f:
+            steps = tomllib.load(f)['steps']
+        tags = self.doc.tags
+        views = {a['data-view'] for _, a in tags if 'data-view' in a}
+        ids = {a['id'] for _, a in tags if 'id' in a}
+        tour_hooks = {a['data-tour'] for _, a in tags if 'data-tour' in a}
+        scenario_ids = {s['id'] for s in self.scenarios}
+        for step in steps:
+            with self.subTest(step=step['title'], device=step.get('device')):
+                self.assertIn(step.get('device'), (None, 'phone', 'desktop'))
+                # every step moves on with Next; no "click here" steps
+                self.assertIn(step['mode'], ('modal', 'tooltip'))
+                self.assertNotIn('hint', step)
+                # a record route such as policies/POL-001/tasks: the view is the first two parts
+                parts = step['route'].split('/')
+                self.assertTrue('/'.join(parts[:2]) in views or parts[0] in views)
+                self.assertIn(step['scenario'], scenario_ids | {''})
+                if 'at' in step:
+                    self.assertIn(step['at'], ids)
+                target = step.get('target', '')
+                if step['mode'] == 'tooltip':
+                    self.assertTrue(target)
+                for hook in re.findall(r"data-tour='([^']+)'", target):
+                    self.assertIn(hook, tour_hooks)
+                if target.startswith('#') and ' ' not in target:
+                    self.assertIn(target[1:], ids)
+        for device, low, high in (('phone', 5, 9), ('desktop', 10, 18)):
+            with self.subTest(device=device):
+                path = [s for s in steps if s.get('device') in (None, device)]
+                self.assertEqual(path[0]['mode'], 'modal')
+                self.assertEqual(path[-1]['mode'], 'modal')
+                numbered = [s for s in path if s['mode'] != 'modal']
+                self.assertTrue(low <= len(numbered) <= high, len(numbered))
+
+    def test_phone_layout_and_limits(self):
+        css = (SOURCE / 'demo.css').read_text()
+        js = (SOURCE / 'demo.js').read_text()
+        # the bottom bar, sheets and fold buttons are built by demo.js and styled for phones only
+        self.assertIn('@media (max-width: 599.98px)', css)
+        for hook in ('ar-tabbar', 'ar-sheet', 'ar-fold'):
+            with self.subTest(hook=hook):
+                self.assertIn(hook, js)
+                self.assertIn('.' + hook, css)
+        self.assertNotIn('min-width: 880px', css)   # tables are cards on phones, not sideways scrollers
+        built = (OUTPUT / 'index.html').read_text()
+        home = re.split(r'data-view=["\']?dashboard["\']?', built, maxsplit=1)[1]
+        home = re.split(r'data-tour=["\']?kpis["\']?', home, maxsplit=1)[0]
+        self.assertIn('Take the short tour', home)
+        self.assertIn('Limits of this demo.', home)
+        self.assertIn('ar-about-title', {a['id'] for _, a in self.doc.tags if 'id' in a})   # More > About links here
+        # wording: the demo must not claim to monitor anything
+        self.assertNotIn('watch for change', built)
+
     def test_assets_and_standalone_preview(self):
         for name, tag, attr in (('demo.css', 'link', 'href'), ('demo.js', 'script', 'src')):
             self.assertEqual((OUTPUT / name).read_bytes(), (SOURCE / name).read_bytes())
@@ -96,6 +150,15 @@ class DemoTests(unittest.TestCase):
         original = (ROOT / 'static/ai-review-triggers-preview.html').read_bytes()
         self.assertEqual(hashlib.sha256(original).hexdigest(), PREVIEW_SHA256)
         self.assertEqual((ROOT / 'public/ai-review-triggers-preview.html').read_bytes(), original)
+
+    def test_standalone_preview_matches_current_source(self):
+        preview = (ROOT / 'static/ai-review-triggers-preview.html').read_text()
+        self.assertEqual(json.loads(DemoDocument(preview).config_text), self.config)
+        for asset in ('demo.css', 'demo.js'):
+            with self.subTest(asset=asset):
+                self.assertIn((SOURCE / asset).read_text(), preview)
+        for text in ('Take the short tour', 'Limits of this demo.'):
+            self.assertIn(text, preview)
 
     def test_asset_versions_match_source_sha256(self):
         for name, tag, attr in (('demo.css', 'link', 'href'), ('demo.js', 'script', 'src')):

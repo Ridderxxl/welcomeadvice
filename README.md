@@ -37,6 +37,14 @@ After building, open `/demos/ai-review-triggers/`. The companion HTML is at
 - Interaction and styling: `demo.js`, `demo.css`.
 - Page structure: `templates/ai-review-triggers.html` and its template directory.
 
+Below 600px wide the demo switches to a phone layout: a bottom bar (Simulate,
+Changes, Tasks, Records, More), tables shown as cards, and assessment steps and
+policy sections that fold. `demo.js` builds the bar, the two sheets and the fold
+buttons from the page that Zola renders, so the templates carry no phone-only
+markup except the "Take the short tour" button on the home view. `tour.toml`
+holds two tours, a short one for phones and a longer one for wider screens
+(`device = "phone"` or `"desktop"` on each step).
+
 Make edits in these source files, rebuild, and run the tests. The standalone HTML
 is a self-contained snapshot of the generated page; regenerate it after source
 changes by inlining the built demo.css and demo.js into the built index.html,
