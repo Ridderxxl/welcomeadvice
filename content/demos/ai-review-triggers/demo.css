@@ -655,6 +655,34 @@ tr[data-flags].is-flagged td:first-child { box-shadow: inset 3px 0 0 var(--warn-
   }
   .ar-tabbar__badge--muted { background: var(--neutral-bg); color: var(--ink-2); }
 
+  /* Phone reading scale: 16px prose, 14px supporting labels. */
+  .ar { font-size: 16px; }
+  .ar-tour { font-size: 16px; }
+  .ar-demo__active { font-size: 16px; line-height: 1.45; }
+  .ar-demo__status { flex-basis: 100%; min-width: 0; }
+  .ar-demo__active > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+  .ar-demo__lead { font-size: 14px; }
+  .ar-tour__text { font-size: 16px; line-height: 1.55; }
+  .ar-choice__teaser { font-size: 16px; line-height: 1.55; }
+  .ar-text, .ar-kv dd, .ar-qa__q, .ar-qa__a, .ar-bullets, .ar-about__text p,
+  .ar-list__main, .ar-reflist__text, .ar-ph__lead, .ar-table td, .ar-table--compact td,
+  .ar-cell-main, .ar-card__intro, .ar-note, .ar-clearlist__items { font-size: 16px; }
+  .ar-card__hint, .ar-card__foot, .ar-meta dd, .ar-kv dt, .ar-process__meta,
+  .ar-stepper__state, .ar-step__result, .ar-alert__meta, .ar-crumbs, .ar-list__date,
+  .ar-reflist__id, .ar-id, .ar-more, .ar-sheet__note, .ar-concepts, .ar-concepts a,
+  .ar-card__link, .ar-tour__tool, .ar-tour__progress { font-size: 14px; }
+  .ar-meta dt, .ar-choice__type, .ar-tour__chapter, .ar-pill, .ar-alert__kind,
+  .ar-demo__pill, .ar-kpi__label, .ar-kpi__sub, .ar-stepper__label,
+  .ar-process__label, .ar-table td[data-label]::before { font-size: 14px; }
+  .ar .ar-ref, .ar-chip, .ar-tag, .ar-answer, .ar-prio, .ar-origin { font-size: 14px; }
+  .ar-card__title, .ar-step__title, .ar-sec__title, .ar-choice__name { font-size: 18px; }
+  .ar-tour__title { font-size: 20px; }
+  .ar-tour .ar-btn { min-height: 40px; height: auto; font-size: 16px; }
+
+  /* Keep the spotlight and target hit area, without a yellow outline or pulse. */
+  .ar-tour__ring { box-shadow: none; border: 0; }
+  .ar-tour__beacon { display: none; }
+
   /* ---- Tour card sits above the bottom bar */
   .ar-tour__card { left: 12px !important; right: 12px; top: auto !important; bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 10px); width: auto; max-height: 46vh; }
   .ar-tour__card--modal { top: 50% !important; bottom: auto; max-height: calc(100vh - 24px); }
