@@ -10,7 +10,7 @@ from urllib.parse import parse_qs, urlparse
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'content/demos/ai-review-triggers'
 OUTPUT = ROOT / 'public/demos/ai-review-triggers'
-PREVIEW_SHA256 = '5a76a038b1f87b604162cd681dc542f6841f49b721ae43145163872963bb7435'
+PREVIEW_SHA256 = '0b3cba2e5a94d0cb82d77332cec4c95c415c93f35299483696d8c9d50a69ffe3'
 
 
 class DemoDocument(HTMLParser):
